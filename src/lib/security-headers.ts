@@ -21,8 +21,8 @@ export function generateCSPHeader(nonce?: string): string {
     // Default fallback for all resource types
     "default-src 'self'",
 
-    // Scripts: Allow self, nonce (if provided), and Stripe
-    `script-src 'self' ${nonceStr} https://js.stripe.com https://cdn.jsdelivr.net`.trim(),
+    // Scripts: Allow self, nonce (if provided), unsafe-inline (for Next.js), and Stripe
+    `script-src 'self' ${nonceStr} 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net https://vercel.live`.trim(),
 
     // Styles: Allow self, nonce, inline styles (for CSS-in-JS), and Google Fonts
     `style-src 'self' ${nonceStr} 'unsafe-inline' https://fonts.googleapis.com`.trim(),
@@ -31,7 +31,7 @@ export function generateCSPHeader(nonce?: string): string {
     "img-src 'self' data: https://*.supabase.co https://*.stripe.com",
 
     // AJAX/WebSocket/Fetch: Allow self, Supabase API, and Stripe API
-    "connect-src 'self' https://*.supabase.co https://api.stripe.com",
+    "connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co",
 
     // Fonts: Allow self and Google Fonts
     "font-src 'self' https://fonts.gstatic.com",
@@ -66,7 +66,11 @@ export function generateCSPHeader(nonce?: string): string {
  * @returns Object with security headers
  */
 export function getSecurityHeaders(isDevelopment = false, nonce?: string) {
-  const cspHeaderName = isDevelopment
+  // Use report-only mode in development or on Vercel until we fine-tune CSP
+  const isVercel = process.env.VERCEL === '1';
+  const useReportOnly = isDevelopment || isVercel;
+  
+  const cspHeaderName = useReportOnly
     ? "Content-Security-Policy-Report-Only"
     : "Content-Security-Policy";
 
