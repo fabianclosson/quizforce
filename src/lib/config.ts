@@ -32,6 +32,7 @@ const envSchema = z.object({
   // Vercel Supabase Integration naming (fallbacks)
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  SUPABASE_JWT_SECRET: z.string().min(1).optional(),
   
   // Stripe Configuration (Required in production for payments)
   STRIPE_SECRET_KEY: z.string().min(1, {
@@ -135,8 +136,8 @@ export const config = {
   supabase: {
     url: env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || '',
     anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || '',
-    serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY || '',
-    isConfigured: !!(env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL) && !!(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY) && !!env.SUPABASE_SERVICE_ROLE_KEY,
+    serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_JWT_SECRET || '',
+    isConfigured: !!(env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL) && !!(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY) && !!(env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_JWT_SECRET),
   },
   
   // Stripe configuration
