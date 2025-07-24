@@ -1,24 +1,21 @@
-import { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase";
-import { validate, respond } from "@/lib/api-validation-helpers";
+import { NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    // Validate the request body using the new validation system
-    const validation = await validate.auth.register(request);
+    const supabase = await createServerSupabaseClient();
+    
+    // Get request body
+    const body = await request.json();
+    const { firstName, lastName, email, password } = body;
 
-    if (!validation.success) {
-      return respond.error(
-        validation.errors || [],
-        400,
-        "Registration validation failed"
+    // Basic validation
+    if (!firstName || !lastName || !email || !password) {
+      return NextResponse.json(
+        { error: "All fields are required" },
+        { status: 400 }
       );
     }
-
-    const { firstName, lastName, email, password } = validation.data!;
-
-    // Create Supabase client
-    const supabase = createClient();
 
     // Check if user already exists
     const { data: existingUser } = await supabase
@@ -28,19 +25,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingUser) {
-      return respond.error(
-        [
-          {
-            field: "email",
-            message: "An account with this email already exists",
-          },
-        ],
-        409,
-        "Account already exists"
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 }
       );
     }
 
-    // Create the user account
+    // Create user with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -53,62 +44,52 @@ export async function POST(request: NextRequest) {
     });
 
     if (authError) {
-      console.error("Auth signup error:", authError);
-      return respond.error(
-        [{ field: "auth", message: "Failed to create account" }],
-        500,
-        "Registration failed"
+      return NextResponse.json(
+        { error: authError.message },
+        { status: 400 }
       );
     }
 
     if (!authData.user) {
-      return respond.error(
-        [{ field: "auth", message: "Failed to create user account" }],
-        500,
-        "Registration failed"
+      return NextResponse.json(
+        { error: "Failed to create user" },
+        { status: 500 }
       );
     }
 
-    // Create profile record
-    const { error: profileError } = await supabase.from("profiles").insert({
-      id: authData.user.id,
-      email,
-      first_name: firstName,
-      last_name: lastName,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+    // Create profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert({
+        id: authData.user.id,
+        email: authData.user.email,
+        first_name: firstName,
+        last_name: lastName,
+        role: "user",
+      });
 
     if (profileError) {
       console.error("Profile creation error:", profileError);
-      // Note: User auth account was created but profile failed
-      // In production, you might want to implement cleanup
-      return respond.error(
-        [{ field: "profile", message: "Failed to create user profile" }],
-        500,
-        "Registration partially failed"
+      return NextResponse.json(
+        { error: "Failed to create user profile" },
+        { status: 500 }
       );
     }
 
-    return respond.success(
-      {
-        user: {
-          id: authData.user.id,
-          email: authData.user.email,
-          firstName,
-          lastName,
-        },
-        needsEmailConfirmation: !authData.user.email_confirmed_at,
+    return NextResponse.json({
+      message: "User registered successfully",
+      user: {
+        id: authData.user.id,
+        email: authData.user.email,
+        firstName,
+        lastName,
       },
-      201,
-      "Account created successfully"
-    );
+    });
   } catch (error) {
     console.error("Registration error:", error);
-    return respond.error(
-      [{ field: "server", message: "Internal server error" }],
-      500,
-      "Registration failed"
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

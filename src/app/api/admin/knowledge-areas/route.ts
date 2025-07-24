@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { verifyAdminAccess } from "@/lib/admin-auth";
 import {
   handleApiError,
@@ -38,6 +38,7 @@ interface RawKnowledgeArea {
   }[];
 }
 
+// GET /api/admin/knowledge-areas - List all knowledge areas
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
     const body = await request.json();
 
     // Validate required fields
