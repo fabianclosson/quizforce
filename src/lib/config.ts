@@ -1,15 +1,11 @@
 import { z } from "zod";
 
 /**
- * Environment Variable Validation Schema
- * 
- * This schema validates all environment variables used in the application
- * and provides type-safe access to them with proper fallbacks.
+ * Environment Variables Schema
+ * Validates all environment variables used in the application
  */
-
-// Base environment schema
 const envSchema = z.object({
-  // Node.js environment
+  // Node.js Environment
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   
   // Next.js specific
@@ -271,6 +267,34 @@ if (config.isProduction && !isBuildTime) {
   validateFeatureConfig.supabase();
   validateFeatureConfig.payments();
   validateFeatureConfig.googleAuth();
+}
+
+/**
+ * Client-side configuration helper
+ * This function can only be called on the client-side and checks for NEXT_PUBLIC_ variables
+ */
+export function getClientConfig() {
+  if (typeof window === 'undefined') {
+    throw new Error('getClientConfig() can only be called on the client-side');
+  }
+
+  // On the client, we can only access NEXT_PUBLIC_ environment variables
+  const clientSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const clientSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+  return {
+    supabase: {
+      url: clientSupabaseUrl,
+      anonKey: clientSupabaseAnonKey,
+      isConfigured: !!(clientSupabaseUrl && clientSupabaseAnonKey && 
+        !clientSupabaseUrl.includes('placeholder') && 
+        !clientSupabaseAnonKey.includes('placeholder')),
+    },
+    stripe: {
+      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+      isConfigured: !!(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY),
+    },
+  };
 }
 
 // Check environment and provide fallbacks
