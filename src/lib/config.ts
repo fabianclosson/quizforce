@@ -199,18 +199,26 @@ export const runtime = {
  */
 export const validateFeatureConfig = {
   payments: () => {
-    if (!config.stripe.isConfigured && config.isProduction) {
+    // Don't throw errors during build time, only at runtime
+    const isBuildTime = process.env.VERCEL_ENV === undefined && process.env.CI !== undefined;
+    const isRuntimeProduction = config.isProduction && !isBuildTime;
+    
+    if (!config.stripe.isConfigured && isRuntimeProduction) {
       throw new Error("Stripe configuration is required for payment features in production. Please set STRIPE_SECRET_KEY and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.");
-    } else if (!config.stripe.isConfigured && config.isDevelopment) {
-      console.warn("⚠️  Stripe not configured for development. Payment features will be disabled.");
+    } else if (!config.stripe.isConfigured) {
+      console.warn("⚠️  Stripe not configured. Payment features will be disabled.");
     }
   },
   
   supabase: () => {
-    if (!config.supabase.isConfigured && config.isProduction) {
+    // Don't throw errors during build time, only at runtime
+    const isBuildTime = process.env.VERCEL_ENV === undefined && process.env.CI !== undefined;
+    const isRuntimeProduction = config.isProduction && !isBuildTime;
+    
+    if (!config.supabase.isConfigured && isRuntimeProduction) {
       throw new Error("Supabase configuration is required in production. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.");
-    } else if (!config.supabase.isConfigured && config.isDevelopment) {
-      console.warn("⚠️  Supabase not configured for development. Database features will be disabled.");
+    } else if (!config.supabase.isConfigured) {
+      console.warn("⚠️  Supabase not configured. Database features will be disabled.");
     }
   },
   
@@ -235,8 +243,14 @@ export const validateFeatureConfig = {
   },
 } as const;
 
-// Run feature validations on import (only in production)
-if (config.isProduction) {
+// Run feature validations on import - but be more lenient during build time
+const isBuildTime = typeof window === 'undefined' && (
+  process.env.VERCEL === '1' || 
+  process.env.CI === 'true' || 
+  process.env.NODE_ENV === 'production'
+) && !process.env.NEXT_RUNTIME;
+
+if (config.isProduction && !isBuildTime) {
   try {
     validateFeatureConfig.supabase();
     validateFeatureConfig.payments();
@@ -246,8 +260,8 @@ if (config.isProduction) {
     console.error("❌ Feature configuration error:", error);
     throw error;
   }
-} else if (config.isDevelopment) {
-  // In development, just run warnings
+} else {
+  // In development or build time, just run warnings
   validateFeatureConfig.supabase();
   validateFeatureConfig.payments();
   validateFeatureConfig.googleAuth();
