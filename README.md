@@ -275,3 +275,4 @@ For support and questions:
 # Force Vercel redeploy
 # Trigger redeploy after env vars
 # Manual deployment trigger Wed Jul 23 22:00:52 EDT 2025
+# Force redeploy with new Supabase credentials Thu Jul 24 13:51:23 EDT 2025
