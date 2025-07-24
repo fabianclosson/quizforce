@@ -213,14 +213,23 @@ export const validateFeatureConfig = {
   },
   
   supabase: () => {
-    // Don't throw errors during build time, only at runtime
     const isBuildTime = process.env.VERCEL_ENV === undefined && process.env.CI !== undefined;
     const isRuntimeProduction = config.isProduction && !isBuildTime;
-    
+
+    if (runtime.isClient) {
+      // Client side only needs URL + anonKey
+      const hasBasicConfig = !!(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+      if (!hasBasicConfig) {
+        console.warn("⚠️  Supabase not configured. Database features will be disabled.");
+      }
+      return;
+    }
+
+    // Server-side validation (needs service role key)
     if (!config.supabase.isConfigured && isRuntimeProduction) {
-      throw new Error("Supabase configuration is required in production. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.");
+      throw new Error("Supabase configuration is required in production. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_JWT_SECRET).");
     } else if (!config.supabase.isConfigured) {
-      console.warn("⚠️  Supabase not configured. Database features will be disabled.");
+      console.warn("⚠️  Supabase not fully configured (service role key missing). Some server features will be disabled.");
     }
   },
   
