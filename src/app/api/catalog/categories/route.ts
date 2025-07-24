@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from("certification_categories")
-      .select("*")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+    const supabase = await createServerSupabaseClient();
+    
+    // Get all unique categories from certifications
+    const { data: certifications, error } = await supabase
+      .from("certifications")
+      .select("category")
+      .not("category", "is", null);
 
     if (error) {
       console.error("Error fetching categories:", error);
@@ -22,9 +19,17 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json(data || []);
+    // Extract unique categories
+    const categories = [
+      ...new Set(certifications?.map((cert: { category: string }) => cert.category)),
+    ].filter(Boolean);
+
+    return NextResponse.json({
+      categories,
+      count: categories.length,
+    });
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error("Categories API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
