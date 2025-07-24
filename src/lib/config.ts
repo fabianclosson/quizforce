@@ -18,6 +18,7 @@ const envSchema = z.object({
   CI: z.string().optional(),
   
   // Supabase Configuration (Required in production)
+  // Support both standard Next.js naming and Vercel integration naming
   NEXT_PUBLIC_SUPABASE_URL: z.string().url({
     message: "NEXT_PUBLIC_SUPABASE_URL must be a valid URL"
   }).optional(),
@@ -27,6 +28,10 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, {
     message: "SUPABASE_SERVICE_ROLE_KEY is required for server-side operations"
   }).optional(),
+  
+  // Vercel Supabase Integration naming (fallbacks)
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_ANON_KEY: z.string().min(1).optional(),
   
   // Stripe Configuration (Required in production for payments)
   STRIPE_SECRET_KEY: z.string().min(1, {
@@ -128,10 +133,10 @@ export const config = {
   
   // Supabase configuration
   supabase: {
-    url: env.NEXT_PUBLIC_SUPABASE_URL || '',
-    anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    url: env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || '',
+    anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || '',
     serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY || '',
-    isConfigured: !!(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY && env.SUPABASE_SERVICE_ROLE_KEY),
+    isConfigured: !!(env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL) && !!(env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY) && !!env.SUPABASE_SERVICE_ROLE_KEY,
   },
   
   // Stripe configuration
