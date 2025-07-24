@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { PracticeExamForm } from "@/components/admin/practice-exam-form";
 import type { Database } from "@/types/database";
 
@@ -12,7 +12,7 @@ interface EditPracticeExamPageProps {
 }
 
 async function getPracticeExam(id: string): Promise<PracticeExamRow | null> {
-  const supabase = createClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from("practice_exams")

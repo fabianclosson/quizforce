@@ -6,16 +6,19 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
+import type { Database } from "@/types/database";
 
-interface PageProps {
+type CertificationRow = Database["public"]["Tables"]["certifications"]["Row"];
+
+interface EditCertificationPageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-async function getCertification(id: string) {
-  const supabase = createClient();
+async function getCertification(id: string): Promise<CertificationRow | null> {
+  const supabase = await createServerSupabaseClient();
 
   const { data: certification, error } = await supabase
     .from("certifications")
@@ -99,7 +102,7 @@ async function EditCertificationContent({ id }: { id: string }) {
   );
 }
 
-export default async function EditCertificationPage({ params }: PageProps) {
+export default async function EditCertificationPage({ params }: EditCertificationPageProps) {
   const { id } = await params;
 
   return (

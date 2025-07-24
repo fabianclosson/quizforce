@@ -1,12 +1,30 @@
 "use client";
 
-import { useAuth } from "@/contexts/auth-context";
 import { createClient } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
 export default function DebugAuthPage() {
-  const { user, loading: authLoading, userRole } = useAuth();
+  const handleTestAuth = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.getSession();
+
+      console.log("🔍 Raw session data:", data);
+      console.log("🔍 Raw session error:", error);
+
+      setRawSession(data);
+      if (error) {
+        setSessionError(error.message);
+      }
+    } catch (err) {
+      console.error("🔍 Error getting raw session:", err);
+      setSessionError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
   const [rawSession, setRawSession] = useState<{
     session: Session | null;
   } | null>(null);
