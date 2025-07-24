@@ -1,23 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
-// Use service role client to bypass RLS like other catalog endpoints
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
-
-/**
- * GET /api/catalog/certifications/[id]
- * Get a single certification by ID for public display
- */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await params;
+    const supabase = await createServerSupabaseClient();
+
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json(
