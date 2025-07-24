@@ -2,6 +2,12 @@ import {withSentryConfig} from '@sentry/nextjs';
 import type { NextConfig } from "next";
 import { getSecurityHeaders, getDevelopmentCSP } from "./src/lib/security-headers";
 
+/* TEMP DEBUG: Print Supabase env vars during Vercel build */
+console.log('BUILD-TIME ENV CHECK →',
+  'NEXT_PUBLIC_SUPABASE_URL=', process.env.NEXT_PUBLIC_SUPABASE_URL || 'undefined',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY=', (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '***' : 'undefined')
+);
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 const isProduction = process.env.NODE_ENV === 'production';
 
