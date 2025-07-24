@@ -6,8 +6,8 @@ const supabaseUrl = config.supabase.url;
 const supabaseAnonKey = config.supabase.anonKey;
 
 // Check if Supabase is properly configured
-const isSupabaseConfigured = config.supabase.isConfigured && 
-  !supabaseUrl.includes('placeholder') && 
+const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey) &&
+  !supabaseUrl.includes('placeholder') &&
   !supabaseAnonKey.includes('placeholder');
 
 // Client-side Supabase client (for use in components)
