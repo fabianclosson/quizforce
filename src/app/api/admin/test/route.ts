@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function GET() {
   try {
+    // Create Supabase client safely inside the function
+    const supabase = await createServerSupabaseClient();
+    
     // Test admin access by checking admin users
     const { data: profiles, error } = await supabase
       .from("profiles")
