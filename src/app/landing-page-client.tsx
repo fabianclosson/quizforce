@@ -877,15 +877,7 @@ export function LandingPageClient() {
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-sm text-gray-400">
-                © 2025 QuizForce, by{" "}
-                <Link
-                  href="http://transforma.ca"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  Transforma
-                </Link>
+                © 2025 QuizForce • Not affiliated with Salesforce.
               </p>
               <div className="flex items-center space-x-2 mt-4 md:mt-0 text-sm text-gray-400">
                 <span>Made with</span>
