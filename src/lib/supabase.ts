@@ -13,7 +13,10 @@ const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey) &&
 // Client-side Supabase client (for use in components)
 export function createClient() {
   if (!isSupabaseConfigured) {
-    console.warn('⚠️ Supabase not configured - using mock client');
+    console.warn('⚠️ Supabase not configured - using mock client', {
+      supabaseUrl,
+      anonKeyLength: supabaseAnonKey?.length || 0,
+    });
     // Return a mock client that doesn't make actual requests
     return {
       auth: {
