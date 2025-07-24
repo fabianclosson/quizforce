@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Implement Premium Bundle Purchase Flow
+# Status: pending
+# Dependencies: 15
+# Priority: high
+# Description: Create the purchase flow for premium individual certification bundles.
+# Details:
+Implement the purchase API endpoint for premium bundles. Create Stripe Checkout session with product details and pricing. Handle authentication checks and redirects. Process successful payments and create enrollment records. Set 12-month access period from enrollment date. Add success messages and redirect to dashboard. Implement error handling for failed payments. Create purchase history tracking.
+
+# Test Strategy:
+Test purchase flow for authenticated users. Verify Stripe Checkout displays correct product information. Ensure enrollment record is created after successful payment. Test access period calculation. Verify success messages and redirects. Test error handling for payment failures.

@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Create Application Layout and Navigation
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Implement the main application layout with responsive navigation as specified in the PRD.
+# Details:
+Create the main layout component with left navigation bar and top header. Implement the QuizForce logo in the top left. Build the left navigation with links to Dashboard, Catalog, Practice Exams, and Community. Create the profile dropdown in the top right with My Account, Purchase History, and Sign Out options. Implement responsive design with hamburger menu for mobile. Create layout transitions and animations for smooth navigation. Ensure navigation state is preserved across routes.
+
+# Test Strategy:
+Test layout rendering on different screen sizes. Verify that navigation links work correctly. Test responsive behavior on mobile devices. Ensure dropdown menu functions properly. Verify that active navigation state is correctly highlighted.

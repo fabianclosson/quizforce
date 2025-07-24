@@ -1,0 +1,11 @@
+# Task ID: 27
+# Title: Implement Practice Exam Management for Admins
+# Status: pending
+# Dependencies: 24, 25
+# Priority: medium
+# Description: Create practice exam management in the admin dashboard.
+# Details:
+Build practice exam management interface in the admin dashboard. Implement CRUD operations for practice exams within certification bundles. Add form for creating new practice exams with name, time limits, and passing thresholds. Create editing interface for existing exams. Implement exam-to-certification assignment functionality. Add form validation and error handling. Create responsive design for the interface.
+
+# Test Strategy:
+Test creation of new practice exams. Verify editing functionality for existing exams. Ensure exam-to-certification assignment works correctly. Test form validation and error handling. Verify responsive design works on different screen sizes.

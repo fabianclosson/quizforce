@@ -1,0 +1,11 @@
+# Task ID: 22
+# Title: Build User Profile Management
+# Status: pending
+# Dependencies: 5
+# Priority: medium
+# Description: Implement the user profile management page with personal information editing.
+# Details:
+Create the account page at `/account`. Display personal information (first name, last name, email). Show profile picture from Google OAuth or default avatar. Add account creation date. Implement edit profile functionality. Create form for updating first name, last name, email address, and profile picture. Add password change section for email-registered users. Implement account deletion option with confirmation. Add form validation and error handling.
+
+# Test Strategy:
+Verify account page displays correct user information. Test profile editing functionality. Ensure password change works for email-registered users. Test account deletion with confirmation. Verify form validation and error handling.

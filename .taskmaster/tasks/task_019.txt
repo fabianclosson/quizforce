@@ -1,0 +1,11 @@
+# Task ID: 19
+# Title: Implement Practice Exam Interface
+# Status: pending
+# Dependencies: 18
+# Priority: high
+# Description: Create the practice exam interface with question display, navigation, and timer.
+# Details:
+Build the exam page at `/exam/[exam-id]`. Create pre-exam page with instructions, time limit, and Begin Exam button. Implement the exam interface with question display area, answer options, navigation buttons, question palette sidebar, timer, and progress indicator. Add support for different question types (multiple choice, multiple select, true/false). Implement question flagging functionality. Create auto-save functionality every 30 seconds. Add exam submission confirmation dialog. Implement timer with auto-submission on expiration.
+
+# Test Strategy:
+Test pre-exam page and Begin Exam functionality. Verify question display and answer selection. Test navigation between questions. Ensure question palette shows correct status. Test flagging functionality. Verify auto-save works correctly. Test timer and auto-submission. Ensure submission confirmation works properly.

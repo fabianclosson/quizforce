@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Implement User Registration Flow
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Create the user registration flow with email verification and Google OAuth as specified in the PRD.
+# Details:
+Build the signup page at `/auth/signup`. Implement email registration form with validation. Add Google OAuth integration with the 'Continue with Google' button. Create email verification process using Supabase. Handle registration success and redirect to dashboard. Implement error handling and validation messages. Create loading states for form submission. Add terms of service and privacy policy acceptance checkbox.
+
+# Test Strategy:
+Test email registration with validation. Verify Google OAuth flow works correctly. Test email verification process. Ensure proper error handling for invalid inputs. Test redirect to dashboard after successful registration.

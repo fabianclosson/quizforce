@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Install and Configure shadcn/ui Components
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Install and configure shadcn/ui component library with Lucide React icons for the application UI.
+# Details:
+Install shadcn/ui CLI and initialize it in the project. Configure the theme and color palette according to the QuizForce brand. Set up the necessary components from shadcn/ui that will be used throughout the application (buttons, cards, forms, modals, etc.). Install Lucide React for icons and create a central icon registry for consistent usage. Create a components directory to organize shadcn/ui components. Set up a theme provider for light/dark mode support.
+
+# Test Strategy:
+Verify that shadcn/ui components render correctly. Test theme switching functionality if implemented. Ensure Lucide icons display properly. Check that components are responsive across different screen sizes.

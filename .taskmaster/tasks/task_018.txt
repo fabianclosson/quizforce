@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Build Practice Exam Selection Interface
+# Status: pending
+# Dependencies: 11
+# Priority: high
+# Description: Create the practice exam selection interface with tables grouped by certification bundles.
+# Details:
+Build the practice exams page at `/practice-exams`. Implement tables grouped by certification bundles. Create table rows for each practice exam showing name, question count, status, last score, and action buttons. Add conditional rendering for action buttons based on exam status (Start, Continue, Restart). Implement loading states and error handling. Fetch user enrollment and exam attempt data from Supabase.
+
+# Test Strategy:
+Verify practice exam tables render correctly. Test conditional action buttons based on exam status. Ensure data is correctly fetched and displayed. Test loading states and error handling. Verify exam status is accurately reflected.

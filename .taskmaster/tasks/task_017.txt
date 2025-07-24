@@ -1,0 +1,11 @@
+# Task ID: 17
+# Title: Implement Bundle Package Purchase Flow
+# Status: pending
+# Dependencies: 15
+# Priority: high
+# Description: Create the purchase flow for multi-certification bundle packages.
+# Details:
+Implement the purchase API endpoint for bundle packages. Create Stripe Checkout session with package details, included certifications, and savings information. Process successful payments and create enrollment records for all certifications in the package. Set 12-month access period from enrollment date for each certification. Add success messages and redirect to dashboard. Implement error handling for failed payments. Create purchase history tracking.
+
+# Test Strategy:
+Test package purchase flow for authenticated users. Verify Stripe Checkout displays correct package information and savings. Ensure enrollment records are created for all certifications after successful payment. Test access period calculation. Verify success messages and redirects. Test error handling for payment failures.

@@ -1,0 +1,11 @@
+# Task ID: 12
+# Title: Implement Certification Catalog
+# Status: pending
+# Dependencies: 4, 6
+# Priority: high
+# Description: Create the certification catalog page with filtering, sorting, and search functionality.
+# Details:
+Build the catalog page at `/catalog`. Implement the product grid displaying certification bundles and packages. Create product cards showing badge image, name, exam/question count, price, and enrollment status. Add filter functionality by category, type, and price. Implement sorting options (Most Recent, Most Popular, Price). Create search bar with keyword search functionality. Add pagination or infinite scroll for large catalogs. Implement loading states and error handling.
+
+# Test Strategy:
+Test catalog rendering with product data. Verify filtering works correctly for all filter types. Test sorting functionality. Ensure search works with different keywords. Test pagination or infinite scroll. Verify product cards display correct information.

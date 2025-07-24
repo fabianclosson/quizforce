@@ -1,0 +1,11 @@
+# Task ID: 20
+# Title: Create Exam Results and Review Interface
+# Status: pending
+# Dependencies: 19
+# Priority: high
+# Description: Implement the exam results page with performance breakdown and answer review.
+# Details:
+Build the results page after exam submission. Display overall score percentage, pass/fail status, and time taken. Create performance breakdown by knowledge area with score percentages, questions attempted, and area weighting. Implement color-coded performance indicators. Add Review Answers button. Create review interface showing all questions with user's answers, correct answers, and explanations. Implement filtering by knowledge area. Add navigation back to dashboard or exam retake.
+
+# Test Strategy:
+Verify results page displays correct score and pass/fail status. Test performance breakdown by knowledge area. Ensure review interface shows questions with correct answers and explanations. Test filtering by knowledge area. Verify navigation back to dashboard and exam retake functionality.

@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Implement Password Reset Flow
+# Status: pending
+# Dependencies: 5
+# Priority: medium
+# Description: Create the password reset flow as specified in the PRD.
+# Details:
+Build the forgot password page. Implement email input form with validation. Create password reset email sending functionality using Supabase. Build the password reset form page. Implement new password input with confirmation and validation. Handle password update and redirect to login. Create success and error messages. Implement token validation for reset links.
+
+# Test Strategy:
+Test forgot password form submission. Verify reset email is sent correctly. Test password reset form with validation. Ensure proper redirect after successful password reset. Test token validation and expiration.

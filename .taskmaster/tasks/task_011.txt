@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Create User Dashboard
+# Status: pending
+# Dependencies: 4, 5, 6
+# Priority: high
+# Description: Implement the user dashboard with exams in progress and certifications sections.
+# Details:
+Build the dashboard page at `/dashboard`. Create the 'My Exams in Progress' section showing in-progress exams with progress percentage and continue buttons. Implement the 'My Certifications' section displaying enrolled certification bundles with practice exams and attempt history. Add expandable knowledge area performance summaries for each certification. Create empty state for users with no enrollments. Implement loading states and error handling. Add data fetching from Supabase for user enrollments and exam attempts.
+
+# Test Strategy:
+Verify dashboard renders correctly with user data. Test expandable knowledge area summaries. Ensure 'Continue Exam' buttons work correctly. Test empty state for new users. Verify data is correctly fetched and displayed.

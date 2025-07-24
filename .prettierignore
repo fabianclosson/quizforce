@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+build/
+
+# Environment files
+.env*
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+*.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git
+.git/
+
+# Task Master
+.taskmaster/
+
+# AI Assistant configurations
+.cursor/
+.clinerules/
+.roo/
+.trae/
+.windsurf/
+.github/instructions/
+
+# Config files that should not be formatted
+*.config.js
+*.config.mjs
+*.config.ts 

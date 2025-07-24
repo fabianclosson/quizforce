@@ -1,0 +1,11 @@
+# Task ID: 29
+# Title: Implement Question Management for Admins
+# Status: pending
+# Dependencies: 24, 27, 28
+# Priority: medium
+# Description: Create question and answer management in the admin dashboard.
+# Details:
+Build question management interface in the admin dashboard. Implement CRUD operations for questions and answers. Add form for creating new questions with multiple answer choices. Create editing interface for existing questions and explanations. Implement question-to-exam and question-to-area assignment functionality. Add support for different question types. Implement form validation and error handling. Create responsive design for the interface.
+
+# Test Strategy:
+Test creation of new questions with answers. Verify editing functionality for existing questions. Ensure question assignment to exams and areas works correctly. Test different question types. Verify form validation and error handling. Test responsive design on different screen sizes.

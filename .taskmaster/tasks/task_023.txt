@@ -1,0 +1,11 @@
+# Task ID: 23
+# Title: Create Purchase History Page
+# Status: pending
+# Dependencies: 15
+# Priority: medium
+# Description: Implement the purchase history page showing all user purchases.
+# Details:
+Build the purchase history page at `/purchases`. Display list of all purchases with purchase date, certification bundle name, amount paid, and access period. Add download receipt button for paid purchases. Show current access status for each purchase. Implement filtering and sorting options. Create responsive design for the page. Add loading states and error handling.
+
+# Test Strategy:
+Verify purchase history page displays correct purchase information. Test download receipt functionality for paid purchases. Ensure access status is correctly displayed. Test filtering and sorting if implemented. Verify responsive design works on different screen sizes.

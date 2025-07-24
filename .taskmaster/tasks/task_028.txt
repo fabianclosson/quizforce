@@ -1,0 +1,11 @@
+# Task ID: 28
+# Title: Build Knowledge Area Management for Admins
+# Status: pending
+# Dependencies: 24, 25
+# Priority: medium
+# Description: Implement knowledge area management in the admin dashboard.
+# Details:
+Create knowledge area management interface in the admin dashboard. Implement CRUD operations for knowledge areas specific to certifications. Add form for creating new knowledge areas with weightings and descriptions. Create editing interface for existing areas. Implement area-to-certification assignment functionality. Add form validation and error handling. Create responsive design for the interface.
+
+# Test Strategy:
+Test creation of new knowledge areas. Verify editing functionality for existing areas. Ensure area-to-certification assignment works correctly. Test form validation and error handling. Verify responsive design works on different screen sizes.

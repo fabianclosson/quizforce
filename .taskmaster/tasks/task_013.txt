@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Build Product Details Pages
+# Status: pending
+# Dependencies: 12
+# Priority: high
+# Description: Implement the product details pages for individual certification bundles and multi-certification packages.
+# Details:
+Create the product details page at `/catalog/[product-id]`. Build different layouts for individual certification bundles vs. multi-certification packages. For individual certifications, show detailed information, category, reviews, and ratings. For packages, display included certifications, total question count, pricing comparison, and savings amount. Add enrollment/purchase buttons with appropriate states. Implement review submission for enrolled users. Create loading states and error handling.
+
+# Test Strategy:
+Test product details page for individual certifications. Verify package details page shows correct information. Test review submission for enrolled users. Ensure enrollment/purchase buttons display correct state. Verify pricing and savings calculations for packages.

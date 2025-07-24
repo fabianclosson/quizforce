@@ -1,0 +1,11 @@
+# Task ID: 1
+# Title: Initialize Next.js 15 Project with TypeScript
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up a new Next.js 15 project with TypeScript, Tailwind CSS, and App Router configuration.
+# Details:
+Create a new Next.js project using the latest version (15) with TypeScript support. Configure the project to use App Router. Install and configure Tailwind CSS for styling. Set up the basic project structure following Next.js best practices. Initialize Git repository and create initial commit. Configure ESLint and Prettier for code quality. Set up the basic folder structure for the application including app directory, components, lib, and public directories.
+
+# Test Strategy:
+Verify that the project builds successfully without errors. Ensure that TypeScript is properly configured. Test that Tailwind CSS is working by adding a simple styled component. Confirm that App Router is functioning by creating a simple route.

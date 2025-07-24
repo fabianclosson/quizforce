@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: Integrate Stripe for Premium Purchases
+# Status: pending
+# Dependencies: 4, 13
+# Priority: high
+# Description: Integrate Stripe Checkout for premium certification bundles and packages.
+# Details:
+Install and configure Stripe SDK. Create Stripe API endpoints for checkout sessions. Implement redirect to Stripe Checkout for premium purchases. Handle Stripe webhooks for payment success and failure. Create payment records in the database. Set up coupon code functionality in Stripe Checkout. Implement enrollment creation after successful payment. Configure 12-month access period from enrollment date. Add success and error handling for payment flow.
+
+# Test Strategy:
+Test Stripe Checkout integration with test mode. Verify webhook handling for successful payments. Test coupon code functionality. Ensure enrollment records are created after payment. Verify 12-month access period is set correctly. Test error handling for failed payments.
