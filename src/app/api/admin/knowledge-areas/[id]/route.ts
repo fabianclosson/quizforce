@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminAccess } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import {
   handleApiError,
   createDatabaseError,
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
     const { data: knowledgeArea, error } = await supabase
       .from("knowledge_areas")
       .select("*")
@@ -96,7 +96,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if knowledge area exists
     const { data: existingArea } = await supabase
@@ -161,7 +161,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if knowledge area exists
     const { data: existingArea } = await supabase

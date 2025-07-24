@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { verifyAdminAccess } from "@/lib/admin-auth";
 import { z } from "zod";
 import { Validators } from "@/lib/validators";
@@ -37,7 +37,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Get package with certifications
     const { data: packageData, error } = await supabase
@@ -143,7 +143,7 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = updatePackageSchema.parse(body);
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Extract certification_ids for separate handling
     const { certification_ids, ...packageUpdates } = validatedData;
@@ -235,7 +235,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if package exists
     const { data: existingPackage, error: fetchError } = await supabase

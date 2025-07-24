@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminRouteGuard } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 interface RouteParams {
   params: Promise<{
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     const { data: practiceExam, error } = await supabase
       .from("practice_exams")
@@ -97,7 +97,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if certification exists
     const { data: certification, error: certError } = await supabase
@@ -157,7 +157,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if practice exam exists
     const { data: practiceExam, error: fetchError } = await supabase

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { verifyAdminAccess } from "@/lib/admin-auth";
 
 interface RouteParams {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Get user profile
     const { data: user, error: userError } = await supabase
@@ -177,7 +177,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { role, account_status, action } = body;
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if user exists
     const { data: existingUser, error: fetchError } = await supabase
@@ -288,7 +288,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if user exists
     const { data: existingUser, error: fetchError } = await supabase

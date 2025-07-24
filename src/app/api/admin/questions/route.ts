@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import { verifyAdminAccess } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Build the query with joins
     let query = supabase.from("questions").select(
@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Verify practice exam exists
     const { data: examData, error: examError } = await supabase

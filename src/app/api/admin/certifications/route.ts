@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminRouteGuard } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 /**
  * GET /api/admin/certifications
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Build query
     let query = supabase
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if slug already exists
     const { data: existingCert } = await supabase
@@ -187,7 +187,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if certification exists
     const { data: existingCert } = await supabase
@@ -288,7 +288,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if certification exists
     const { data: existingCert } = await supabase

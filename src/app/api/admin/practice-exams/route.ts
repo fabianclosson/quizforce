@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminRouteGuard } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     let query = supabase
       .from("practice_exams")
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Check if certification exists
     const { data: certification, error: certError } = await supabase
@@ -165,7 +165,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     const { data: practiceExam, error } = await supabase
       .from("practice_exams")
@@ -208,7 +208,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Delete the practice exam (cascade will handle related records)
     const { error } = await supabase

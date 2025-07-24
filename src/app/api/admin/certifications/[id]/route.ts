@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminAccess } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import {
   handleApiError,
   createDatabaseError,
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = await createServerSupabaseClient();
 
     // Fetch the certification with its category
     const { data: certification, error } = await supabase
