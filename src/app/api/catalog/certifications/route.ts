@@ -15,8 +15,26 @@ export async function GET(request: Request) {
       .from("certifications")
       .select(
         `
-        *,
-        certification_categories!inner(*),
+        id,
+        name,
+        slug,
+        description,
+        detailed_description,
+        price_cents,
+        exam_count,
+        total_questions,
+        is_active,
+        is_featured,
+        created_at,
+        updated_at,
+        certification_categories!inner(
+          name,
+          slug,
+          description,
+          icon,
+          color,
+          sort_order
+        ),
         practice_exams!inner(
           id,
           question_count
