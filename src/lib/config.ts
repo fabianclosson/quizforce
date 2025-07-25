@@ -318,10 +318,6 @@ const getEnvVar = (key: string, fallback: string = ''): string => {
   return process.env[key] || fallback;
 };
 
-// Force Next to inline these variables in every client bundle
-process.env.NEXT_PUBLIC_SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL  || '';
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
 // Use validated environment configuration
 const supabaseUrl = config.supabase.url;
 
