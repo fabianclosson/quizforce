@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         is_featured,
         created_at,
         updated_at,
-        certification_categories!inner(
+        certification_categories(
           name,
           slug,
           description,
@@ -43,15 +43,15 @@ export async function GET(request: Request) {
           color,
           sort_order
         ),
-        practice_exams!inner(
+        practice_exams(
           id,
-          question_count
+          question_count,
+          is_active
         )
       `,
         { count: "exact" }
       )
-      .eq("is_active", true)
-      .eq("practice_exams.is_active", true);
+      .eq("is_active", true);
 
     console.log("Base query created");
 
@@ -89,7 +89,8 @@ export async function GET(request: Request) {
     console.log("Query result:", {
       dataCount: data?.length || 0,
       totalCount: count,
-      error: error?.message || null
+      error: error?.message || null,
+      sampleData: data?.[0] || null
     });
 
     if (error) {
@@ -100,31 +101,36 @@ export async function GET(request: Request) {
       );
     }
 
-    // Calculate correct exam counts and question totals for certifications
-    const processedCertifications = (data || []).map((cert: { practice_exams?: { question_count?: number }[] }) => {
-      const practiceExams = cert.practice_exams || [];
-      const calculatedExamCount = practiceExams.length;
-      const calculatedQuestionTotal = practiceExams.reduce(
-        (sum: number, exam: { question_count?: number }) => sum + (exam.question_count || 0),
-        0
-      );
+    // Filter out certifications without active practice exams and calculate correct exam counts
+    const processedCertifications = (data || [])
+      .filter((cert: any) => {
+        const activeExams = cert.practice_exams?.filter((exam: any) => exam.is_active) || [];
+        return activeExams.length > 0;
+      })
+      .map((cert: any) => {
+        const activeExams = cert.practice_exams?.filter((exam: any) => exam.is_active) || [];
+        const calculatedExamCount = activeExams.length;
+        const calculatedQuestionTotal = activeExams.reduce(
+          (sum: number, exam: any) => sum + (exam.question_count || 0),
+          0
+        );
 
-      // Remove practice_exams from the response and add calculated values
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { practice_exams: _, ...certWithoutExams } = cert;
+        // Remove practice_exams from the response and add calculated values
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { practice_exams: _, ...certWithoutExams } = cert;
 
-      return {
-        ...certWithoutExams,
-        exam_count: calculatedExamCount,
-        total_questions: calculatedQuestionTotal,
-      };
-    });
+        return {
+          ...certWithoutExams,
+          exam_count: calculatedExamCount,
+          total_questions: calculatedQuestionTotal,
+        };
+      });
 
     console.log("Processed certifications:", processedCertifications.length);
 
     return NextResponse.json({
       certifications: processedCertifications,
-      total: count || 0,
+      total: processedCertifications.length,
     });
   } catch (error) {
     console.error("Unexpected error:", error);
