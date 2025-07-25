@@ -261,7 +261,8 @@ const isBuildTime = typeof window === 'undefined' && (
   process.env.NODE_ENV === 'production'
 ) && !process.env.NEXT_RUNTIME;
 
-if (config.isProduction && !isBuildTime) {
+// Only run validations in production server-side runtime, not during build or on client
+if (config.isProduction && !isBuildTime && typeof window === 'undefined') {
   try {
     validateFeatureConfig.supabase();
     validateFeatureConfig.payments();
@@ -271,11 +272,6 @@ if (config.isProduction && !isBuildTime) {
     console.error("❌ Feature configuration error:", error);
     throw error;
   }
-} else {
-  // In development or build time, just run warnings
-  validateFeatureConfig.supabase();
-  validateFeatureConfig.payments();
-  validateFeatureConfig.googleAuth();
 }
 
 /**
