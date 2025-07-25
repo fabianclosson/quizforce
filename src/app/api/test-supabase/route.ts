@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createServiceSupabaseClient } from "@/lib/supabase";
+import { config } from "@/lib/config";
 
 export async function GET() {
   try {
-    const supabase = await createServerSupabaseClient();
-    
     console.log("Testing Supabase connection...");
+    console.log("Config check:", {
+      supabaseConfigured: config.supabase.isConfigured,
+      hasUrl: !!config.supabase.url,
+      hasAnonKey: !!config.supabase.anonKey,
+      hasServiceRoleKey: !!config.supabase.serviceRoleKey,
+      serviceRoleKeyLength: config.supabase.serviceRoleKey?.length || 0
+    });
+    
+    const supabase = createServiceSupabaseClient();
     
     // Test 1: Simple query to certifications table
     const { data: certs, error: certsError } = await supabase
@@ -45,6 +53,13 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
+      config: {
+        supabaseConfigured: config.supabase.isConfigured,
+        hasUrl: !!config.supabase.url,
+        hasAnonKey: !!config.supabase.anonKey,
+        hasServiceRoleKey: !!config.supabase.serviceRoleKey,
+        serviceRoleKeyLength: config.supabase.serviceRoleKey?.length || 0
+      },
       results: {
         certifications: {
           count: certs?.length || 0,
