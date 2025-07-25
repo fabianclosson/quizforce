@@ -5,11 +5,12 @@ export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
     
-    // Get all unique categories from certifications
-    const { data: certifications, error } = await supabase
-      .from("certifications")
-      .select("category")
-      .not("category", "is", null);
+    // Get all active categories from certification_categories table
+    const { data: categories, error } = await supabase
+      .from("certification_categories")
+      .select("name, slug, description, icon, color, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
 
     if (error) {
       console.error("Error fetching categories:", error);
@@ -19,14 +20,9 @@ export async function GET() {
       );
     }
 
-    // Extract unique categories
-    const categories = [
-      ...new Set(certifications?.map((cert: { category: string }) => cert.category)),
-    ].filter(Boolean);
-
     return NextResponse.json({
-      categories,
-      count: categories.length,
+      categories: categories || [],
+      count: categories?.length || 0,
     });
   } catch (error) {
     console.error("Categories API error:", error);
