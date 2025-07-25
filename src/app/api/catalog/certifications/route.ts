@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createServiceSupabaseClient } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const priceType = searchParams.get("priceType");
