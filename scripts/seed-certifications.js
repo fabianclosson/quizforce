@@ -24,6 +24,58 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// First, create categories
+const sampleCategories = [
+  {
+    name: "Administrator",
+    slug: "admins",
+    description: "Salesforce Administrator certifications and practice exams",
+    icon: "shield-check",
+    color: "#0176D3",
+    sort_order: 1,
+  },
+  {
+    name: "Developer",
+    slug: "developers", 
+    description: "Platform Developer certifications and practice exams",
+    icon: "code",
+    color: "#00A1E0",
+    sort_order: 2,
+  },
+  {
+    name: "Consultant",
+    slug: "consultants",
+    description: "Consultant certifications and practice exams", 
+    icon: "users",
+    color: "#0D9488",
+    sort_order: 3,
+  },
+  {
+    name: "Architect",
+    slug: "architects",
+    description: "Technical Architect certifications and practice exams",
+    icon: "building",
+    color: "#7C3AED", 
+    sort_order: 4,
+  },
+  {
+    name: "Associate",
+    slug: "associates",
+    description: "Salesforce Associate certifications and practice exams",
+    icon: "academic-cap",
+    color: "#059669",
+    sort_order: 5,
+  },
+  {
+    name: "Marketer",
+    slug: "marketers",
+    description: "Marketing Cloud certifications and practice exams",
+    icon: "megaphone",
+    color: "#DC2626",
+    sort_order: 6,
+  },
+];
+
 const sampleCertifications = [
   {
     name: "Salesforce Administrator Practice Bundle",
@@ -32,7 +84,7 @@ const sampleCertifications = [
       "Complete practice exam bundle for Salesforce Administrator certification",
     detailed_description:
       "Master the Salesforce Administrator exam with our comprehensive practice bundle featuring 3 full-length exams with 180 questions total.",
-    category_slug: "admins",
+    category_slug: "admin", // Changed from "admins"
     price_cents: 4999, // $49.99
     exam_count: 3,
     total_questions: 180,
@@ -46,7 +98,7 @@ const sampleCertifications = [
       "Essential practice exams for Platform Developer I certification",
     detailed_description:
       "Build your development skills with practice exams covering Apex, Visualforce, and Lightning Platform fundamentals.",
-    category_slug: "developers",
+    category_slug: "developer", // Changed from "developers"
     price_cents: 5999, // $59.99
     exam_count: 2,
     total_questions: 120,
@@ -59,7 +111,7 @@ const sampleCertifications = [
     description: "Practice exams for Sales Cloud Consultant certification",
     detailed_description:
       "Prepare for the Sales Cloud Consultant exam with real-world scenarios and comprehensive question coverage.",
-    category_slug: "consultants",
+    category_slug: "consultant",
     price_cents: 6999, // $69.99
     exam_count: 2,
     total_questions: 120,
@@ -72,7 +124,7 @@ const sampleCertifications = [
     description: "Free practice exam for Salesforce Associate certification",
     detailed_description:
       "Get started with Salesforce certifications with our free Associate practice exam.",
-    category_slug: "associates",
+    category_slug: "associate",
     price_cents: 0, // Free
     exam_count: 1,
     total_questions: 60,
@@ -86,7 +138,7 @@ const sampleCertifications = [
       "Practice exams for Marketing Cloud Email Specialist certification",
     detailed_description:
       "Master Marketing Cloud Email Studio with targeted practice questions and scenarios.",
-    category_slug: "marketers",
+    category_slug: "marketer",
     price_cents: 4999, // $49.99
     exam_count: 2,
     total_questions: 120,
@@ -99,7 +151,8 @@ async function seedCertifications() {
   try {
     console.log("Starting certification seeding...");
 
-    // First, get the category IDs
+    // Get existing categories
+    console.log("1. Fetching existing categories...");
     const { data: categories, error: categoriesError } = await supabase
       .from("certification_categories")
       .select("id, slug");
@@ -108,24 +161,35 @@ async function seedCertifications() {
       throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
     }
 
+    console.log(`Found ${categories.length} existing categories`);
+
     const categoryMap = {};
     categories.forEach(cat => {
       categoryMap[cat.slug] = cat.id;
     });
 
     // Prepare certifications with proper category IDs
-    const certificationsToInsert = sampleCertifications.map(cert => ({
-      name: cert.name,
-      slug: cert.slug,
-      description: cert.description,
-      detailed_description: cert.detailed_description,
-      category_id: categoryMap[cert.category_slug],
-      price_cents: cert.price_cents,
-      exam_count: cert.exam_count,
-      total_questions: cert.total_questions,
-      is_active: cert.is_active,
-      is_featured: cert.is_featured,
-    }));
+    console.log("2. Seeding certifications...");
+    const certificationsToInsert = sampleCertifications.map(cert => {
+      const categoryId = categoryMap[cert.category_slug];
+      if (!categoryId) {
+        console.warn(`⚠️ Category '${cert.category_slug}' not found for certification '${cert.name}'`);
+        return null;
+      }
+      
+      return {
+        name: cert.name,
+        slug: cert.slug,
+        description: cert.description,
+        detailed_description: cert.detailed_description,
+        category_id: categoryId,
+        price_cents: cert.price_cents,
+        exam_count: cert.exam_count,
+        total_questions: cert.total_questions,
+        is_active: cert.is_active,
+        is_featured: cert.is_featured,
+      };
+    }).filter(Boolean); // Remove null entries
 
     // Insert certifications
     const { data: insertedCertifications, error: insertError } = await supabase
