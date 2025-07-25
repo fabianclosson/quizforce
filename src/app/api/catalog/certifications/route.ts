@@ -11,14 +11,6 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
 
-    console.log("Certifications API - Building query with filters:", {
-      category,
-      priceType,
-      search,
-      page,
-      limit
-    });
-
     let query = supabase
       .from("certifications")
       .select(
@@ -53,24 +45,18 @@ export async function GET(request: Request) {
       )
       .eq("is_active", true);
 
-    console.log("Base query created");
-
     // Apply filters
     if (category && category !== "all") {
-      console.log("Applying category filter:", category);
       query = query.eq("certification_categories.slug", category);
     }
 
     if (priceType === "free") {
-      console.log("Applying free price filter");
       query = query.eq("price_cents", 0);
     } else if (priceType === "premium") {
-      console.log("Applying premium price filter");
       query = query.gt("price_cents", 0);
     }
 
     if (search) {
-      console.log("Applying search filter:", search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
@@ -83,15 +69,7 @@ export async function GET(request: Request) {
     query = query.order("is_featured", { ascending: false });
     query = query.order("name", { ascending: true });
 
-    console.log("Executing query...");
     const { data, error, count } = await query;
-
-    console.log("Query result:", {
-      dataCount: data?.length || 0,
-      totalCount: count,
-      error: error?.message || null,
-      sampleData: data?.[0] || null
-    });
 
     if (error) {
       console.error("Error fetching certifications:", error);
@@ -125,8 +103,6 @@ export async function GET(request: Request) {
           total_questions: calculatedQuestionTotal,
         };
       });
-
-    console.log("Processed certifications:", processedCertifications.length);
 
     return NextResponse.json({
       certifications: processedCertifications,
