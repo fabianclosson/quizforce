@@ -1,14 +1,25 @@
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
 import { config } from "./config";
 
+// Determine URL/Key differently for client vs server
+let browserSupabaseUrl = '';
+let browserAnonKey = '';
+if (typeof window !== 'undefined') {
+  browserSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string || '';
+  browserAnonKey  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string || '';
+}
+
 // Use validated environment configuration
 const supabaseUrl = config.supabase.url;
 const supabaseAnonKey = config.supabase.anonKey;
 
-// Check if Supabase is properly configured
-const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey) &&
-  !supabaseUrl.includes('placeholder') &&
-  !supabaseAnonKey.includes('placeholder');
+const effectiveSupabaseUrl = typeof window !== 'undefined' ? browserSupabaseUrl : supabaseUrl;
+const effectiveAnonKey    = typeof window !== 'undefined' ? browserAnonKey    : supabaseAnonKey;
+
+// Re-evaluate configuration flag with effective values
+const isSupabaseConfigured = !!(effectiveSupabaseUrl && effectiveAnonKey) &&
+  !effectiveSupabaseUrl.includes('placeholder') &&
+  !effectiveAnonKey.includes('placeholder');
 
 // Client-side Supabase client (for use in components)
 export function createClient() {
@@ -35,7 +46,7 @@ export function createClient() {
     } as any;
   }
   
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(effectiveSupabaseUrl, effectiveAnonKey);
 }
 
 // Server-side Supabase client (for use in Server Components, API routes, etc.)
@@ -60,7 +71,7 @@ export async function createServerSupabaseClient() {
   const { cookies } = await import("next/headers");
   const cookieStore = await cookies();
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(effectiveSupabaseUrl, effectiveAnonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -104,7 +115,7 @@ export const createServiceSupabaseClient = () => {
 
   const serviceRoleKey = config.supabase.serviceRoleKey;
 
-  return createServerClient(supabaseUrl, serviceRoleKey, {
+  return createServerClient(effectiveSupabaseUrl, serviceRoleKey, {
     cookies: {
       get() {
         return undefined;
@@ -121,5 +132,5 @@ export const createServiceSupabaseClient = () => {
 
 // Helper to check if environment is properly configured
 export const checkSupabaseConfig = () => {
-  return !!(supabaseUrl && supabaseAnonKey);
+  return !!(effectiveSupabaseUrl && effectiveAnonKey);
 };
