@@ -237,54 +237,71 @@ export default function CertificationPage({ params }: CertificationPageProps) {
                   </div>
                 </div>
                 <Separator className="my-6" />
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-separate border-spacing-0">
-                      <thead>
-                        <tr>
-                          <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
-                            Knowledge Area
-                          </th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
-                            Questions
-                          </th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
-                            Weight
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {certification.knowledge_areas?.map((ka, index) => {
-                          const questionCount = Math.round(
-                            (ka.weight_percentage / 100) *
-                              certification.total_questions
-                          );
-                          const isLast =
-                            index === certification.knowledge_areas!.length - 1;
-                          return (
-                            <tr key={ka.id}>
-                              <td
-                                className={`py-3 px-4 text-sm font-medium text-gray-900 dark:text-white ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
-                              >
-                                {ka.name}
-                              </td>
-                              <td
-                                className={`py-3 px-4 text-center text-sm text-gray-600 dark:text-gray-300 ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
-                              >
-                                {questionCount}
-                              </td>
-                              <td
-                                className={`py-3 px-4 text-center text-sm font-semibold text-gray-900 dark:text-white ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
-                              >
-                                {ka.weight_percentage}%
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                
+                {/* Knowledge Areas Section */}
+                {certification.knowledge_areas && certification.knowledge_areas.length > 0 ? (
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                      Knowledge Areas & Question Distribution
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-separate border-spacing-0">
+                        <thead>
+                          <tr>
+                            <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
+                              Knowledge Area
+                            </th>
+                            <th className="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
+                              Questions
+                            </th>
+                            <th className="text-center py-3 px-4 font-semibold text-gray-900 dark:text-white border-b-2 border-dashed border-gray-300 dark:border-gray-600">
+                              Weight
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {certification.knowledge_areas.map((ka, index) => {
+                            const questionCount = Math.round(
+                              (ka.weight_percentage / 100) *
+                                certification.total_questions
+                            );
+                            const isLast =
+                              index === certification.knowledge_areas!.length - 1;
+                            return (
+                              <tr key={ka.id}>
+                                <td
+                                  className={`py-3 px-4 text-sm font-medium text-gray-900 dark:text-white ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
+                                >
+                                  {ka.name}
+                                </td>
+                                <td
+                                  className={`py-3 px-4 text-center text-sm text-gray-600 dark:text-gray-300 ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
+                                >
+                                  {questionCount}
+                                </td>
+                                <td
+                                  className={`py-3 px-4 text-center text-sm font-semibold text-gray-900 dark:text-white ${!isLast ? "border-b border-dashed border-gray-200 dark:border-gray-700" : ""}`}
+                                >
+                                  {ka.weight_percentage}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                    <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      Knowledge Areas Coming Soon
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Detailed knowledge area breakdown and question distribution will be available soon for this certification.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </div>
           </div>

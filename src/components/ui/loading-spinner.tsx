@@ -1,32 +1,28 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
   className?: string;
+  children?: React.ReactNode;
 }
 
 export function LoadingSpinner({
   size = "md",
   className,
+  children,
 }: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8",
-    lg: "h-12 w-12",
+  // Map old size names to new spinner sizes
+  const sizeMap = {
+    sm: "small" as const,
+    md: "medium" as const,
+    lg: "large" as const,
   };
 
   return (
-    <div
-      className={cn(
-        "animate-spin rounded-full border-2 border-muted border-t-primary",
-        sizeClasses[size],
-        className
-      )}
-      role="status"
-      aria-label="Loading..."
-    >
-      <span className="sr-only">Loading...</span>
-    </div>
+    <Spinner size={sizeMap[size]} className={className}>
+      {children}
+    </Spinner>
   );
 }

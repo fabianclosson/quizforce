@@ -59,7 +59,9 @@ export {
 } from "./form";
 export { Input } from "./input";
 export { Label } from "./label";
-export { LoadingSpinner } from "./loading-spinner";
+export * from "./loading-spinner";
+export * from "./spinner";
+export * from "./optimized-image";
 export {
   MobileForm,
   MobileFormField,

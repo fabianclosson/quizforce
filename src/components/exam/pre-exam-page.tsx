@@ -24,6 +24,7 @@ import {
   Info,
   Bookmark,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface PreExamPageProps {
   preExamData: PreExamData;
@@ -351,7 +352,7 @@ export function PreExamPage({
                   {startExamMutation.isPending ||
                   restartExamMutation.isPending ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <Spinner size="small" className="mr-2 text-white" />
                       {isRestart ? "Restarting" : "Starting"}{" "}
                       {selectedMode === "exam" ? "Exam" : "Practice"}
                       ...
