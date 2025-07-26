@@ -113,13 +113,11 @@ export function CertificationCard({
             <span>{certification.total_questions || 0} Total Questions</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <DollarSign className="h-4 w-4" />
             {isFree ? (
-              <>
-                <DollarSign className="h-4 w-4" />
-                <span>{formatPrice(certification.price_cents)}</span>
-              </>
+              <span>{formatPrice(certification.price_cents)}</span>
             ) : (
-              <span>{formatPrice(certification.price_cents)} USD</span>
+              <span>{(certification.price_cents / 100).toFixed(2)} USD</span>
             )}
           </div>
           <div className="pt-2 space-y-2">

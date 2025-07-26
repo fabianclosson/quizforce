@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DollarSign } from "lucide-react";
 import { EnrollmentButton } from "@/components/enrollment";
 import type { CertificationPackage } from "@/types/catalog";
 import { PlaceholderImage } from "@/components/ui";
@@ -86,9 +87,12 @@ export function PackageCard({
 
           <div className="flex justify-between items-center text-sm pt-2 border-t">
             <span className="text-gray-600 dark:text-gray-400">Price:</span>
-            <span className="font-medium text-gray-700 dark:text-gray-300">
-              {isFree ? formatPrice(pkg.price_cents) : `${formatPrice(pkg.price_cents)} USD`}
-            </span>
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                {isFree ? formatPrice(pkg.price_cents) : `${(pkg.price_cents / 100).toFixed(2)} USD`}
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>
