@@ -26,6 +26,11 @@ export function CatalogPageClient() {
   const [showFilters, setShowFilters] = useState(false);
   const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
 
+  // Fallback state for direct API calls
+  const [fallbackData, setFallbackData] = useState<any>(null);
+  const [fallbackLoading, setFallbackLoading] = useState(true);
+  const [fallbackError, setFallbackError] = useState<string | null>(null);
+
   // Get user and enrollment data
   const { user } = useAuth();
   const { data: enrollmentsData } = useUserEnrollments();
@@ -61,11 +66,12 @@ export function CatalogPageClient() {
     filters
   });
 
-  // Direct API test
+  // Direct API test and fallback data loading
   useEffect(() => {
     const testAPIs = async () => {
       try {
         console.log("Testing APIs directly...");
+        setFallbackLoading(true);
         
         const [categoriesRes, searchRes] = await Promise.all([
           fetch("/api/catalog/categories"),
@@ -81,15 +87,45 @@ export function CatalogPageClient() {
           categoriesData: categoriesData,
           searchData: searchData
         });
+
+        // Set fallback data
+        setFallbackData({
+          certifications: searchData.certifications || [],
+          packages: searchData.packages || [],
+          categories: categoriesData.categories || [],
+          pagination: searchData.pagination || {
+            page: 1,
+            limit: 12,
+            total: 0,
+            totalPages: 0,
+          },
+        });
+        
+        setFallbackLoading(false);
       } catch (error) {
         console.error("Direct API test failed:", error);
+        setFallbackError(error instanceof Error ? error.message : "Unknown error");
+        setFallbackLoading(false);
       }
     };
     
     testAPIs();
   }, []);
 
-  const isLoading = categoriesLoading || catalogLoading;
+  // Use fallback data if React Query is failing
+  const shouldUseFallback = !catalogData && fallbackData;
+  const finalCatalogData = shouldUseFallback ? fallbackData : catalogData;
+  const finalCategories = shouldUseFallback ? fallbackData?.categories : categories;
+  const finalIsLoading = shouldUseFallback ? fallbackLoading : (categoriesLoading || catalogLoading);
+  const finalError = shouldUseFallback ? fallbackError : catalogError;
+
+  console.log("Fallback Debug:", {
+    shouldUseFallback,
+    fallbackLoading,
+    fallbackError,
+    fallbackCertificationsCount: fallbackData?.certifications?.length || 0,
+    finalCertificationsCount: finalCatalogData?.certifications?.length || 0
+  });
 
   // Get enrolled certification IDs and package IDs
   const enrolledCertificationIds = useMemo(() => {
@@ -108,23 +144,23 @@ export function CatalogPageClient() {
 
   // Filter catalog data based on enrollment toggle
   const filteredCatalogData = useMemo(() => {
-    if (!catalogData || !showEnrolledOnly) return catalogData;
+    if (!finalCatalogData || !showEnrolledOnly) return finalCatalogData;
 
-    const filteredCertifications = catalogData.certifications.filter(cert =>
+    const filteredCertifications = finalCatalogData.certifications.filter((cert: any) =>
       enrolledCertificationIds.has(cert.id)
     );
 
-    const filteredPackages = catalogData.packages.filter(pkg =>
+    const filteredPackages = finalCatalogData.packages.filter((pkg: any) =>
       enrolledPackageIds.has(pkg.id)
     );
 
     return {
-      ...catalogData,
+      ...finalCatalogData,
       certifications: filteredCertifications,
       packages: filteredPackages,
     };
   }, [
-    catalogData,
+    finalCatalogData,
     showEnrolledOnly,
     enrolledCertificationIds,
     enrolledPackageIds,
@@ -213,7 +249,7 @@ export function CatalogPageClient() {
       {showFilters && (
         <div className="mb-6">
           <CatalogFiltersComponent
-            categories={categories || []}
+            categories={finalCategories || []}
             selectedCategory={selectedCategory}
             priceFilter={priceFilter}
             onCategoryChange={handleCategoryChange}
@@ -223,11 +259,11 @@ export function CatalogPageClient() {
       )}
 
       {/* Results */}
-      {catalogError ? (
+      {finalError ? (
         <Card className="p-8 text-center">
           <CardContent>
             <p className="text-red-600 dark:text-red-400">
-              Error loading catalog data. Please try again later.
+              Error loading catalog data: {typeof finalError === 'string' ? finalError : finalError?.message}
             </p>
           </CardContent>
         </Card>
@@ -235,7 +271,7 @@ export function CatalogPageClient() {
         <CatalogGrid
           certifications={filteredCatalogData?.certifications || []}
           packages={filteredCatalogData?.packages || []}
-          isLoading={isLoading}
+          isLoading={finalIsLoading}
           pagination={filteredCatalogData?.pagination}
           onPageChange={handlePageChange}
         />
