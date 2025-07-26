@@ -34,7 +34,10 @@ export async function GET(
     // Get exam session data
     const sessionData = await getExamSessionData(attemptId, user);
 
-    // Transform the data to match the expected ExamSessionData interface
+    // Calculate current question index based on answered questions
+    const answeredQuestionIds = new Set(sessionData.user_answers.map(ua => ua.question_id));
+    const currentQuestionIndex = sessionData.questions.findIndex(q => !answeredQuestionIds.has(q.id));
+    
     const response: ExamSessionData = {
       attempt: {
         id: sessionData.attempt.id,
@@ -45,8 +48,8 @@ export async function GET(
         score_percentage: sessionData.attempt.score_percentage,
         correct_answers: sessionData.attempt.correct_answers,
         total_questions: sessionData.attempt.total_questions,
-        passed: sessionData.attempt.passed,
         time_spent_minutes: sessionData.attempt.time_spent_minutes,
+        passed: sessionData.attempt.passed,
         status: sessionData.attempt.status,
         mode: sessionData.attempt.mode,
         created_at: sessionData.attempt.created_at,
@@ -94,7 +97,7 @@ export async function GET(
         is_correct: ua.is_correct,
         time_spent_seconds: ua.time_spent_seconds,
       })),
-      current_question_index: 0, // This will be calculated on the frontend
+      current_question_index: currentQuestionIndex >= 0 ? currentQuestionIndex : 0, // Use calculated progress
       time_remaining_seconds: calculateTimeRemaining(sessionData.attempt),
       is_flagged: {}, // This will be managed on the frontend
     };

@@ -106,23 +106,58 @@ export function ExamInterface({
   // Timer effect removed - ExamTimer component handles all timer logic
   // The ExamTimer component now manages time countdown and auto-submit
 
-  // Auto-save effect
+  // Auto-save effect - also save current question index to localStorage
   useEffect(() => {
     const autoSaveTimer = setTimeout(() => {
       if (Object.keys(userAnswers).length > 0) {
         handleAutoSave();
       }
+      // Save current question index to localStorage as backup
+      localStorage.setItem(`exam_progress_${sessionData.attempt.id}`, currentQuestionIndex.toString());
     }, 2000); // Auto-save 2 seconds after last change
 
     return () => clearTimeout(autoSaveTimer);
-  }, [userAnswers]);
+  }, [userAnswers, currentQuestionIndex]);
+
+  // Effect to restore progress from localStorage if needed
+  useEffect(() => {
+    const savedProgress = localStorage.getItem(`exam_progress_${sessionData.attempt.id}`);
+    if (savedProgress && sessionData.current_question_index === 0) {
+      const savedIndex = parseInt(savedProgress, 10);
+      if (savedIndex > 0 && savedIndex < sessionData.questions.length) {
+        setCurrentQuestionIndex(savedIndex);
+      }
+    }
+  }, [sessionData.attempt.id, sessionData.current_question_index, sessionData.questions.length]);
 
   const handleAutoSave = async () => {
     setAutoSaveStatus("saving");
     try {
-      // TODO: Implement actual auto-save API call for multi-answer support
-      // Need to save multiple user_answer records per question
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+      // Save all current answers
+      const savePromises = Object.entries(userAnswers).map(async ([questionId, answerIds]) => {
+        const response = await fetch("/api/exam/save-answer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            exam_attempt_id: sessionData.attempt.id,
+            question_id: questionId,
+            answer_ids: answerIds,
+            time_spent_seconds: 0, // We don't track per-question time in this context
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to save answer for question ${questionId}`);
+        }
+        
+        return response.json();
+      });
+
+      // Wait for all saves to complete
+      await Promise.all(savePromises);
+      
       setAutoSaveStatus("saved");
       setTimeout(() => setAutoSaveStatus("idle"), 2000);
     } catch (error) {

@@ -112,12 +112,12 @@ export function CertificationCard({
             <FileText className="h-4 w-4" />
             <span>{certification.total_questions || 0} Total Questions</span>
           </div>
-          {!isFree && (
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <DollarSign className="h-4 w-4" />
-              <span>{formatPrice(certification.price_cents)}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <DollarSign className="h-4 w-4" />
+            <span>
+              {isFree ? "$ Free" : formatPrice(certification.price_cents)}
+            </span>
+          </div>
           <div className="pt-2 space-y-2">
             <Button variant="outline" size="sm" className="w-full" asChild>
               <Link href={`/catalog/certifications/${certification.id}`}>

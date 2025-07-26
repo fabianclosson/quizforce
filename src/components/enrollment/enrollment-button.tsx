@@ -112,7 +112,7 @@ export function EnrollmentButton({
     buttonVariant = "outline";
     isDisabled = true;
   } else if (!user) {
-    buttonText = "Sign Up to Enroll";
+    buttonText = "Sign in to Enroll";
   } else if (!isFree) {
     buttonText = "Purchase";
   }
