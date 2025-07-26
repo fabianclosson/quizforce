@@ -8,7 +8,7 @@ import type {
 } from "@/types/catalog";
 
 /**
- * Fetch all active certification categories
+ * Fetch all certification categories
  */
 export async function getCategories(): Promise<CertificationCategory[]> {
   try {
@@ -16,7 +16,8 @@ export async function getCategories(): Promise<CertificationCategory[]> {
     if (!response.ok) {
       throw new Error("Failed to fetch categories");
     }
-    return await response.json();
+    const data = await response.json();
+    return data.categories || [];
   } catch (error) {
     console.error("Error fetching categories:", error);
     throw new Error("Failed to fetch categories");
@@ -91,13 +92,13 @@ export async function searchCatalog(
       throw new Error("Failed to search catalog");
     }
 
-    const categories = await categoriesResponse.json();
+    const categoriesData = await categoriesResponse.json();
     const searchData = await searchResponse.json();
 
     return {
       certifications: searchData.certifications || [],
       packages: searchData.packages || [],
-      categories: categories || [],
+      categories: categoriesData.categories || [],
       pagination: searchData.pagination || {
         page: filters.page || 1,
         limit: filters.limit || 12,
