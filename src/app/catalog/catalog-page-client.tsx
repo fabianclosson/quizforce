@@ -20,6 +20,7 @@ export function CatalogPageClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedPriceType, setSelectedPriceType] = useState<"all" | "free" | "premium">("all");
+  const [selectedEnrollmentFilter, setSelectedEnrollmentFilter] = useState<"all" | "enrolled" | "not_enrolled">("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -31,10 +32,11 @@ export function CatalogPageClient() {
       search: searchTerm || undefined,
       category: selectedCategory || undefined,
       priceType: selectedPriceType === "all" ? undefined : selectedPriceType,
+      enrollmentFilter: selectedEnrollmentFilter === "all" ? undefined : selectedEnrollmentFilter,
       page: currentPage,
       limit: ITEMS_PER_PAGE,
     }),
-    [searchTerm, selectedCategory, selectedPriceType, currentPage]
+    [searchTerm, selectedCategory, selectedPriceType, selectedEnrollmentFilter, currentPage]
   );
 
   // Fetch data using React Query hooks
@@ -74,6 +76,12 @@ export function CatalogPageClient() {
     setCurrentPage(1);
   };
 
+  // Handle enrollment filter
+  const handleEnrollmentFilterChange = (enrollmentFilter: "all" | "enrolled" | "not_enrolled") => {
+    setSelectedEnrollmentFilter(enrollmentFilter);
+    setCurrentPage(1);
+  };
+
   // Handle pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -84,10 +92,11 @@ export function CatalogPageClient() {
     setSearchTerm("");
     setSelectedCategory("");
     setSelectedPriceType("all");
+    setSelectedEnrollmentFilter("all");
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = searchTerm || selectedCategory || selectedPriceType !== "all";
+  const hasActiveFilters = searchTerm || selectedCategory || selectedPriceType !== "all" || selectedEnrollmentFilter !== "all";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -134,8 +143,10 @@ export function CatalogPageClient() {
                 categories={categories || []}
                 selectedCategory={selectedCategory}
                 priceFilter={selectedPriceType}
+                enrollmentFilter={selectedEnrollmentFilter}
                 onCategoryChange={handleCategoryChange}
                 onPriceFilterChange={handlePriceTypeChange}
+                onEnrollmentFilterChange={handleEnrollmentFilterChange}
               />
             </CardContent>
           </Card>

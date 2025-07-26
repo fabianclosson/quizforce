@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceSupabaseClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   try {
@@ -7,9 +8,32 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const priceType = searchParams.get("priceType");
+    const enrollmentFilter = searchParams.get("enrollmentFilter") || "all";
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
+
+    // Get user enrollments if enrollment filtering is requested
+    let userEnrollments: string[] = [];
+    if (enrollmentFilter !== "all") {
+      try {
+        const clientSupabase = createClient();
+        const { data: { user } } = await clientSupabase.auth.getUser();
+        
+        if (user) {
+          const { data: enrollmentData } = await supabase
+            .from("enrollments")
+            .select("certification_id")
+            .eq("user_id", user.id)
+            .gte("expires_at", new Date().toISOString());
+          
+          userEnrollments = (enrollmentData || []).map((e: any) => e.certification_id);
+        }
+      } catch (error) {
+        console.error("Error fetching user enrollments:", error);
+        // Continue without enrollment filtering if there's an error
+      }
+    }
 
     let query = supabase
       .from("certifications")
@@ -58,6 +82,13 @@ export async function GET(request: Request) {
 
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    }
+
+    // Apply enrollment filter
+    if (enrollmentFilter === "enrolled" && userEnrollments.length > 0) {
+      query = query.in("id", userEnrollments);
+    } else if (enrollmentFilter === "not_enrolled" && userEnrollments.length > 0) {
+      query = query.not("id", "in", `(${userEnrollments.join(",")})`);
     }
 
     // Apply pagination

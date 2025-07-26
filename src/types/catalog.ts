@@ -52,6 +52,7 @@ export interface CatalogFilters {
   category?: string;
   priceType?: "free" | "premium" | "all";
   search?: string;
+  enrollmentFilter?: "all" | "enrolled" | "not_enrolled";
   page?: number;
   limit?: number;
 }

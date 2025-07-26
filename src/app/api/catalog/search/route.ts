@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceSupabaseClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   try {
@@ -7,9 +8,32 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const priceType = searchParams.get("priceType") || "all";
+    const enrollmentFilter = searchParams.get("enrollmentFilter") || "all";
     const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
+
+    // Get user enrollments if enrollment filtering is requested
+    let userEnrollments: string[] = [];
+    if (enrollmentFilter !== "all") {
+      try {
+        const clientSupabase = createClient();
+        const { data: { user } } = await clientSupabase.auth.getUser();
+        
+        if (user) {
+          const { data: enrollmentData } = await supabase
+            .from("enrollments")
+            .select("certification_id")
+            .eq("user_id", user.id)
+            .gte("expires_at", new Date().toISOString());
+          
+          userEnrollments = (enrollmentData || []).map((e: any) => e.certification_id);
+        }
+      } catch (error) {
+        console.error("Error fetching user enrollments:", error);
+        // Continue without enrollment filtering if there's an error
+      }
+    }
 
     // Fetch certifications with calculated exam counts and question totals
     let certQuery = supabase
@@ -62,13 +86,20 @@ export async function GET(request: Request) {
       );
     }
 
+    // Apply enrollment filter
+    if (enrollmentFilter === "enrolled" && userEnrollments.length > 0) {
+      certQuery = certQuery.in("id", userEnrollments);
+    } else if (enrollmentFilter === "not_enrolled" && userEnrollments.length > 0) {
+      certQuery = certQuery.not("id", "in", `(${userEnrollments.join(",")})`);
+    }
+
     const from = (page - 1) * limit;
     const to = from + limit - 1;
     certQuery = certQuery.range(from, to);
     certQuery = certQuery.order("is_featured", { ascending: false });
     certQuery = certQuery.order("name", { ascending: true });
 
-    // Fetch packages (simplified for now)
+    // Fetch packages (simplified for now - packages don't have enrollment filtering yet)
     let packageQuery = supabase
       .from("certification_packages")
       .select("*", { count: "exact" })
@@ -81,10 +112,13 @@ export async function GET(request: Request) {
       );
     }
 
-    const [certResult, packageResult] = await Promise.all([
-      certQuery,
-      packageQuery,
-    ]);
+    // Skip packages if user is filtering for enrolled items only
+    let packageResult = { data: [], count: 0, error: null };
+    if (enrollmentFilter !== "enrolled") {
+      packageResult = await packageQuery;
+    }
+
+    const certResult = await certQuery;
 
     if (certResult.error) {
       console.error("Error fetching certifications:", certResult.error);
