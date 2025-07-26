@@ -84,7 +84,7 @@ const sampleCertifications = [
       "Complete practice exam bundle for Salesforce Administrator certification",
     detailed_description:
       "Master the Salesforce Administrator exam with our comprehensive practice bundle featuring 3 full-length exams with 180 questions total.",
-    category_slug: "admin", // Changed from "admins"
+    category_slug: "admin", // Fixed: Use actual database slug
     price_cents: 4999, // $49.99
     exam_count: 3,
     total_questions: 180,
@@ -98,7 +98,7 @@ const sampleCertifications = [
       "Essential practice exams for Platform Developer I certification",
     detailed_description:
       "Build your development skills with practice exams covering Apex, Visualforce, and Lightning Platform fundamentals.",
-    category_slug: "developer", // Changed from "developers"
+    category_slug: "developer", // Fixed: Use actual database slug
     price_cents: 5999, // $59.99
     exam_count: 2,
     total_questions: 120,
@@ -111,7 +111,7 @@ const sampleCertifications = [
     description: "Practice exams for Sales Cloud Consultant certification",
     detailed_description:
       "Prepare for the Sales Cloud Consultant exam with real-world scenarios and comprehensive question coverage.",
-    category_slug: "consultant",
+    category_slug: "consultant", // Fixed: Use actual database slug
     price_cents: 6999, // $69.99
     exam_count: 2,
     total_questions: 120,
@@ -124,7 +124,7 @@ const sampleCertifications = [
     description: "Free practice exam for Salesforce Associate certification",
     detailed_description:
       "Get started with Salesforce certifications with our free Associate practice exam.",
-    category_slug: "associate",
+    category_slug: "associate", // Fixed: Use actual database slug
     price_cents: 0, // Free
     exam_count: 1,
     total_questions: 60,
@@ -138,7 +138,7 @@ const sampleCertifications = [
       "Practice exams for Marketing Cloud Email Specialist certification",
     detailed_description:
       "Master Marketing Cloud Email Studio with targeted practice questions and scenarios.",
-    category_slug: "marketer",
+    category_slug: "marketer", // Fixed: Use actual database slug
     price_cents: 4999, // $49.99
     exam_count: 2,
     total_questions: 120,

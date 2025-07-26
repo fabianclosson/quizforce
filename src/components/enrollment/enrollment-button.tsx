@@ -75,6 +75,12 @@ export function EnrollmentButton({
       return;
     }
 
+    // If user is not authenticated, redirect to signup
+    if (!user) {
+      router.push("/auth/signup");
+      return;
+    }
+
     if (isFree) {
       // Redirect to intermediate confirmation screen for free items
       if (type === "certification") {
@@ -84,8 +90,12 @@ export function EnrollmentButton({
         router.push(`/packages/${id}`);
       }
     } else {
-      // For paid items fall back to sign-in (actual checkout flow will handle post-login)
-      router.push("/auth/signin");
+      // For paid items, user is authenticated, so proceed with checkout
+      if (type === "certification") {
+        router.push(`/certifications/${id}/checkout`);
+      } else {
+        router.push(`/packages/${id}/checkout`);
+      }
     }
   };
 
@@ -101,15 +111,22 @@ export function EnrollmentButton({
     buttonText = "Enrolled";
     buttonVariant = "outline";
     isDisabled = true;
+  } else if (!user) {
+    buttonText = "Sign Up to Enroll";
   } else if (!isFree) {
-    buttonText = "Sign In to Purchase";
+    buttonText = "Purchase";
   }
+
+  // Add hover styling for blue color
+  const hoverClasses = !isDisabled && !isEnrolled 
+    ? "hover:bg-blue-600 hover:border-blue-600 transition-colors duration-200" 
+    : "";
 
   return (
     <Button
       variant={buttonVariant}
       size={size}
-      className={className}
+      className={`${className} ${hoverClasses}`}
       onClick={handleClick}
       disabled={isDisabled}
     >

@@ -31,6 +31,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
     "/exam",
     "/account",
     "/enrollment-history",
+    "/certifications", // Add enrollment confirmation pages
   ];
 
   // Always render consistently - no conditional mounting to prevent hydration mismatches
