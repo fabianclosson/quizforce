@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/auth-context";
 import type { CertificationCategory } from "@/types/catalog";
 
@@ -29,17 +28,18 @@ export function CatalogFilters({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="space-y-6">
+      <CardContent className="p-4">
+        <div className="space-y-3">
           {/* Categories */}
           <div>
-            <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
+            <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
               Categories
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               <Button
                 variant={selectedCategory === "all" ? "default" : "outline"}
                 size="sm"
+                className="h-7 px-3 text-xs"
                 onClick={() => onCategoryChange("all")}
               >
                 All Categories
@@ -51,6 +51,7 @@ export function CatalogFilters({
                     selectedCategory === category.slug ? "default" : "outline"
                   }
                   size="sm"
+                  className="h-7 px-3 text-xs"
                   onClick={() => onCategoryChange(category.slug)}
                 >
                   {category.name}
@@ -59,50 +60,52 @@ export function CatalogFilters({
             </div>
           </div>
 
-          <Separator />
-
-          {/* Price Filter */}
-          <div>
-            <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-              Price
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={priceFilter === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => onPriceFilterChange("all")}
-              >
-                All Prices
-              </Button>
-              <Button
-                variant={priceFilter === "free" ? "default" : "outline"}
-                size="sm"
-                onClick={() => onPriceFilterChange("free")}
-              >
-                Free
-              </Button>
-              <Button
-                variant={priceFilter === "premium" ? "default" : "outline"}
-                size="sm"
-                onClick={() => onPriceFilterChange("premium")}
-              >
-                Premium
-              </Button>
+          {/* Price & Enrollment Filters Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Price Filter */}
+            <div>
+              <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+                Price
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                <Button
+                  variant={priceFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 px-3 text-xs"
+                  onClick={() => onPriceFilterChange("all")}
+                >
+                  All Prices
+                </Button>
+                <Button
+                  variant={priceFilter === "free" ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 px-3 text-xs"
+                  onClick={() => onPriceFilterChange("free")}
+                >
+                  Free
+                </Button>
+                <Button
+                  variant={priceFilter === "premium" ? "default" : "outline"}
+                  size="sm"
+                  className="h-7 px-3 text-xs"
+                  onClick={() => onPriceFilterChange("premium")}
+                >
+                  Premium
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Enrollment Filter - Only show if user is authenticated */}
-          {user && (
-            <>
-              <Separator />
+            {/* Enrollment Filter - Only show if user is authenticated */}
+            {user && (
               <div>
-                <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
-                  Enrollment Status
+                <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+                  Enrollment
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   <Button
                     variant={enrollmentFilter === "all" ? "default" : "outline"}
                     size="sm"
+                    className="h-7 px-3 text-xs"
                     onClick={() => onEnrollmentFilterChange("all")}
                   >
                     All Items
@@ -110,21 +113,23 @@ export function CatalogFilters({
                   <Button
                     variant={enrollmentFilter === "enrolled" ? "default" : "outline"}
                     size="sm"
+                    className="h-7 px-3 text-xs"
                     onClick={() => onEnrollmentFilterChange("enrolled")}
                   >
-                    My Enrolled Certifications
+                    My Enrolled
                   </Button>
                   <Button
                     variant={enrollmentFilter === "not_enrolled" ? "default" : "outline"}
                     size="sm"
+                    className="h-7 px-3 text-xs"
                     onClick={() => onEnrollmentFilterChange("not_enrolled")}
                   >
                     Not Enrolled
                   </Button>
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
