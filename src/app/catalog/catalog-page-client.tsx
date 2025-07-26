@@ -50,6 +50,17 @@ export function CatalogPageClient() {
     error: catalogError,
   } = useCatalogSearch(filters);
 
+  // Debug logging
+  console.log("CatalogPageClient Debug:", {
+    categoriesLoading,
+    catalogLoading,
+    categoriesCount: categories?.length || 0,
+    certificationsCount: catalogData?.certifications?.length || 0,
+    packagesCount: catalogData?.packages?.length || 0,
+    catalogError: catalogError?.message || null,
+    filters
+  });
+
   const isLoading = categoriesLoading || catalogLoading;
 
   // Get enrolled certification IDs and package IDs
