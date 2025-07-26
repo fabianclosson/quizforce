@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -60,6 +60,34 @@ export function CatalogPageClient() {
     catalogError: catalogError?.message || null,
     filters
   });
+
+  // Direct API test
+  useEffect(() => {
+    const testAPIs = async () => {
+      try {
+        console.log("Testing APIs directly...");
+        
+        const [categoriesRes, searchRes] = await Promise.all([
+          fetch("/api/catalog/categories"),
+          fetch("/api/catalog/search")
+        ]);
+        
+        const categoriesData = await categoriesRes.json();
+        const searchData = await searchRes.json();
+        
+        console.log("Direct API test results:", {
+          categoriesStatus: categoriesRes.status,
+          searchStatus: searchRes.status,
+          categoriesData: categoriesData,
+          searchData: searchData
+        });
+      } catch (error) {
+        console.error("Direct API test failed:", error);
+      }
+    };
+    
+    testAPIs();
+  }, []);
 
   const isLoading = categoriesLoading || catalogLoading;
 
