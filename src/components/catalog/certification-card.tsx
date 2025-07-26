@@ -115,7 +115,7 @@ export function CertificationCard({
           <div className="flex items-center gap-2 text-sm font-medium">
             <DollarSign className="h-4 w-4" />
             <span>
-              {isFree ? "$ Free" : formatPrice(certification.price_cents)}
+              {isFree ? formatPrice(certification.price_cents) : `${formatPrice(certification.price_cents)} USD`}
             </span>
           </div>
           <div className="pt-2 space-y-2">

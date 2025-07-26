@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { EnrollmentButton } from "@/components/enrollment";
 import type { CertificationPackage } from "@/types/catalog";
 import { PlaceholderImage } from "@/components/ui";
+import { formatPrice } from "@/lib/utils";
 
 interface PackageCardProps {
   package: CertificationPackage;
@@ -86,7 +87,7 @@ export function PackageCard({
           <div className="flex justify-between items-center text-sm pt-2 border-t">
             <span className="text-gray-600 dark:text-gray-400">Price:</span>
             <span className="font-bold text-lg">
-              {isFree ? "Free" : `$${(pkg.price_cents / 100).toFixed(2)}`}
+              {isFree ? formatPrice(pkg.price_cents) : `${formatPrice(pkg.price_cents)} USD`}
             </span>
           </div>
         </div>
