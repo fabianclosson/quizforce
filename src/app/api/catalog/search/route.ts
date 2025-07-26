@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createServiceSupabaseClient } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const priceType = searchParams.get("priceType") || "all";
@@ -16,17 +16,35 @@ export async function GET(request: Request) {
       .from("certifications")
       .select(
         `
-        *,
-        certification_categories(*),
-        practice_exams!inner(
+        id,
+        name,
+        slug,
+        description,
+        detailed_description,
+        price_cents,
+        exam_count,
+        total_questions,
+        is_active,
+        is_featured,
+        created_at,
+        updated_at,
+        certification_categories(
+          name,
+          slug,
+          description,
+          icon,
+          color,
+          sort_order
+        ),
+        practice_exams(
           id,
-          question_count
+          question_count,
+          is_active
         )
       `,
         { count: "exact" }
       )
-      .eq("is_active", true)
-      .eq("practice_exams.is_active", true);
+      .eq("is_active", true);
 
     if (category && category !== "all") {
       certQuery = certQuery.eq("certification_categories.slug", category);
@@ -85,10 +103,14 @@ export async function GET(request: Request) {
     }
 
     // Calculate correct exam counts and question totals for certifications
-    const processedCertifications = (certResult.data || []).map((cert: { practice_exams?: { question_count?: number }[] }) => {
-      const practiceExams = cert.practice_exams || [];
-      const calculatedExamCount = practiceExams.length;
-      const calculatedQuestionTotal = practiceExams.reduce(
+    const processedCertifications = (certResult.data || []).map((cert: any) => {
+      // Filter for active practice exams only
+      const activePracticeExams = (cert.practice_exams || []).filter(
+        (exam: any) => exam.is_active === true
+      );
+      
+      const calculatedExamCount = activePracticeExams.length;
+      const calculatedQuestionTotal = activePracticeExams.reduce(
         (sum: number, exam: { question_count?: number }) => sum + (exam.question_count || 0),
         0
       );
