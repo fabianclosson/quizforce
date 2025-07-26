@@ -86,7 +86,7 @@ export function PackageCard({
 
           <div className="flex justify-between items-center text-sm pt-2 border-t">
             <span className="text-gray-600 dark:text-gray-400">Price:</span>
-            <span className="font-bold text-lg">
+            <span className="font-medium text-gray-700 dark:text-gray-300">
               {isFree ? formatPrice(pkg.price_cents) : `${formatPrice(pkg.price_cents)} USD`}
             </span>
           </div>
