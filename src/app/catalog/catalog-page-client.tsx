@@ -1,243 +1,123 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Filter, BookOpen } from "lucide-react";
-import { useCategories, useCatalogSearch } from "@/hooks/use-catalog";
-import { useUserEnrollments } from "@/hooks/use-enrollment";
-import { useAuth } from "@/contexts/auth-context";
-import type { CatalogFilters } from "@/types/catalog";
-import {
-  CatalogGrid,
-  CatalogFilters as CatalogFiltersComponent,
-} from "@/components/catalog";
 
-const ITEMS_PER_PAGE = 12;
+interface Certification {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  detailed_description: string | null;
+  price_cents: number;
+  exam_count: number;
+  total_questions: number;
+  is_active: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+  certification_categories: {
+    name: string;
+    slug: string;
+    description: string;
+    icon: string | null;
+    color: string;
+    sort_order: number;
+  };
+}
+
+interface CatalogResponse {
+  certifications: Certification[];
+  packages: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export function CatalogPageClient() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [priceFilter, setPriceFilter] = useState<"all" | "free" | "premium">(
-    "all"
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showEnrolledOnly, setShowEnrolledOnly] = useState(false);
+  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fallback state for direct API calls
-  const [fallbackData, setFallbackData] = useState<any>(null);
-  const [fallbackLoading, setFallbackLoading] = useState(true);
-  const [fallbackError, setFallbackError] = useState<string | null>(null);
-
-  // Get user and enrollment data
-  const { user } = useAuth();
-  const { data: enrollmentsData } = useUserEnrollments();
-
-  // Build filters object
-  const filters = useMemo<CatalogFilters>(
-    () => ({
-      search: searchTerm || undefined,
-      category: selectedCategory === "all" ? undefined : selectedCategory,
-      priceType: priceFilter,
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-    }),
-    [searchTerm, selectedCategory, priceFilter, currentPage]
-  );
-
-  // Fetch data
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const {
-    data: catalogData,
-    isLoading: catalogLoading,
-    error: catalogError,
-  } = useCatalogSearch(filters);
-
-  // Debug logging
-  console.log("CatalogPageClient Debug:", {
-    categoriesLoading,
-    catalogLoading,
-    categoriesCount: categories?.length || 0,
-    certificationsCount: catalogData?.certifications?.length || 0,
-    packagesCount: catalogData?.packages?.length || 0,
-    catalogError: catalogError?.message || null,
-    filters
-  });
-
-  // Direct API test and fallback data loading
   useEffect(() => {
-    const testAPIs = async () => {
+    async function fetchCertifications() {
       try {
-        console.log("Testing APIs directly...");
-        setFallbackLoading(true);
-        
-        const [categoriesRes, searchRes] = await Promise.all([
-          fetch("/api/catalog/categories"),
-          fetch("/api/catalog/search")
-        ]);
-        
-        const categoriesData = await categoriesRes.json();
-        const searchData = await searchRes.json();
-        
-        console.log("Direct API test results:", {
-          categoriesStatus: categoriesRes.status,
-          searchStatus: searchRes.status,
-          categoriesData: categoriesData,
-          searchData: searchData
-        });
-
-        // Set fallback data
-        setFallbackData({
-          certifications: searchData.certifications || [],
-          packages: searchData.packages || [],
-          categories: categoriesData.categories || [],
-          pagination: searchData.pagination || {
-            page: 1,
-            limit: 12,
-            total: 0,
-            totalPages: 0,
+        setIsLoading(true);
+        const response = await fetch("/api/catalog/search", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
           },
         });
-        
-        setFallbackLoading(false);
-      } catch (error) {
-        console.error("Direct API test failed:", error);
-        setFallbackError(error instanceof Error ? error.message : "Unknown error");
-        setFallbackLoading(false);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: CatalogResponse = await response.json();
+        setCertifications(data.certifications || []);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching certifications:", err);
+        setError(err instanceof Error ? err.message : "Failed to load certifications");
+      } finally {
+        setIsLoading(false);
       }
-    };
-    
-    testAPIs();
+    }
+
+    fetchCertifications();
   }, []);
 
-  // Use fallback data if React Query is failing
-  const shouldUseFallback = !catalogData && fallbackData;
-  const finalCatalogData = shouldUseFallback ? fallbackData : catalogData;
-  const finalCategories = shouldUseFallback ? fallbackData?.categories : categories;
-  const finalIsLoading = shouldUseFallback ? fallbackLoading : (categoriesLoading || catalogLoading);
-  const finalError = shouldUseFallback ? fallbackError : catalogError;
-
-  console.log("Fallback Debug:", {
-    shouldUseFallback,
-    fallbackLoading,
-    fallbackError,
-    fallbackCertificationsCount: fallbackData?.certifications?.length || 0,
-    finalCertificationsCount: finalCatalogData?.certifications?.length || 0
-  });
-
-  // Get enrolled certification IDs and package IDs
-  const enrolledCertificationIds = useMemo(() => {
-    if (!enrollmentsData?.enrollments) return new Set<string>();
-    return new Set(enrollmentsData.enrollments.map(e => e.certification.id));
-  }, [enrollmentsData]);
-
-  const enrolledPackageIds = useMemo(() => {
-    if (!enrollmentsData?.enrollments) return new Set<string>();
-    return new Set(
-      enrollmentsData.enrollments
-        .filter(e => e.package_id)
-        .map(e => e.package_id!)
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-left mb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
+            Catalog
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
+            Browse our comprehensive collection of Salesforce certification practice exams
+          </p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-red-600 mb-4">Error loading certifications: {error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
     );
-  }, [enrollmentsData]);
-
-  // Filter catalog data based on enrollment toggle
-  const filteredCatalogData = useMemo(() => {
-    if (!finalCatalogData || !showEnrolledOnly) return finalCatalogData;
-
-    const filteredCertifications = finalCatalogData.certifications.filter((cert: any) =>
-      enrolledCertificationIds.has(cert.id)
-    );
-
-    const filteredPackages = finalCatalogData.packages.filter((pkg: any) =>
-      enrolledPackageIds.has(pkg.id)
-    );
-
-    return {
-      ...finalCatalogData,
-      certifications: filteredCertifications,
-      packages: filteredPackages,
-    };
-  }, [
-    finalCatalogData,
-    showEnrolledOnly,
-    enrolledCertificationIds,
-    enrolledPackageIds,
-  ]);
-
-  // Handle filter changes
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page on search
-  };
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setCurrentPage(1);
-  };
-
-  const handlePriceFilterChange = (price: "all" | "free" | "premium") => {
-    setPriceFilter(price);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleEnrollmentToggle = () => {
-    setShowEnrolledOnly(!showEnrolledOnly);
-    setCurrentPage(1);
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header */}
       <div className="text-left mb-8">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
           Catalog
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-          Browse our comprehensive collection of Salesforce certification
-          practice exams
+          Browse our comprehensive collection of Salesforce certification practice exams
         </p>
       </div>
 
-      {/* Search and View Controls */}
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search certifications..."
               value={searchTerm}
-              onChange={e => handleSearchChange(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
-
-          {/* View and Filter Controls */}
           <div className="flex gap-2">
-            {/* Enrollment Toggle */}
-            {user && (
-              <Button
-                variant={showEnrolledOnly ? "default" : "outline"}
-                size="sm"
-                onClick={handleEnrollmentToggle}
-                className="flex items-center gap-2"
-              >
-                <BookOpen className="h-4 w-4" />
-                My Certification Enrollments
-              </Button>
-            )}
-
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
+            <Button variant="outline">
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
@@ -245,36 +125,67 @@ export function CatalogPageClient() {
         </div>
       </div>
 
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="mb-6">
-          <CatalogFiltersComponent
-            categories={finalCategories || []}
-            selectedCategory={selectedCategory}
-            priceFilter={priceFilter}
-            onCategoryChange={handleCategoryChange}
-            onPriceFilterChange={handlePriceFilterChange}
-          />
+      {isLoading ? (
+        <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardHeader>
+                <div className="animate-pulse rounded-md bg-muted h-4 w-3/4"></div>
+                <div className="animate-pulse rounded-md bg-muted h-3 w-1/2"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="animate-pulse rounded-md bg-muted h-20 w-full mb-4"></div>
+                <div className="animate-pulse rounded-md bg-muted h-9 w-full"></div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
-
-      {/* Results */}
-      {finalError ? (
-        <Card className="p-8 text-center">
-          <CardContent>
-            <p className="text-red-600 dark:text-red-400">
-              Error loading catalog data: {typeof finalError === 'string' ? finalError : finalError?.message}
-            </p>
-          </CardContent>
-        </Card>
+      ) : certifications.length === 0 ? (
+        <div className="text-center py-12">
+          <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            No certifications found
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            We couldn't find any certifications matching your criteria.
+          </p>
+        </div>
       ) : (
-        <CatalogGrid
-          certifications={filteredCatalogData?.certifications || []}
-          packages={filteredCatalogData?.packages || []}
-          isLoading={finalIsLoading}
-          pagination={filteredCatalogData?.pagination}
-          onPageChange={handlePageChange}
-        />
+        <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {certifications.map((cert) => (
+            <Card key={cert.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold line-clamp-2">
+                  {cert.name}
+                </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {cert.certification_categories.name}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Exams:</span>
+                    <span className="font-medium">{cert.exam_count}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Questions:</span>
+                    <span className="font-medium">{cert.total_questions}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                    <span className="font-medium">
+                      {cert.price_cents === 0 ? "Free" : `$${(cert.price_cents / 100).toFixed(2)}`}
+                    </span>
+                  </div>
+                </div>
+                <Button className="w-full" size="sm">
+                  View Details
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
