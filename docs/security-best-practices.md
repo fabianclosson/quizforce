@@ -237,4 +237,4 @@ curl -X POST https://your-domain.com/api/exam/start -H "Content-Type: applicatio
 
 **Last Updated**: December 2024  
 **Next Review**: March 2025  
-**Security Contact**: security@quizforce.com 
+**Security Contact**: security@quizforce.ai 

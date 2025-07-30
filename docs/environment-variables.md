@@ -60,7 +60,7 @@ These variables enhance functionality but are not required:
 ### Site Configuration
 
 ```bash
-# Your site URL (defaults to https://quizforce.com)
+# Your site URL (defaults to https://quizforce.ai)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 

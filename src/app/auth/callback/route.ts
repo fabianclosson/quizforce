@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { config } from "@/lib/config";
 
 // Helper function to parse full name into first and last names
 function parseFullName(fullName: string): { firstName: string; lastName: string } {
@@ -16,9 +17,12 @@ function parseFullName(fullName: string): { firstName: string; lastName: string 
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
+
+  // Use configured site URL instead of request origin to ensure custom domain redirects
+  const siteUrl = config.siteUrl;
 
   if (code) {
     const supabase = await createServerSupabaseClient();
@@ -58,23 +62,19 @@ export async function GET(request: NextRequest) {
           }
         } else {
           // Update existing profile if name fields are empty
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("first_name, last_name")
-            .eq("id", data.user.id)
-            .single();
-
-          if (profile && (!profile.first_name || !profile.last_name)) {
-            const userMetadata = data.user.user_metadata || {};
+          const userMetadata = data.user.user_metadata || {};
+          const shouldUpdateName = !existingProfile.first_name && !existingProfile.last_name;
+          
+          if (shouldUpdateName) {
             const fullName = userMetadata.full_name || userMetadata.name || "";
             const { firstName, lastName } = parseFullName(fullName);
-
+            
             const { error: updateError } = await supabase
               .from("profiles")
               .update({
-                first_name: firstName || profile.first_name,
-                last_name: lastName || profile.last_name,
-                avatar_url: userMetadata.avatar_url || userMetadata.picture || null,
+                first_name: firstName || null,
+                last_name: lastName || null,
+                avatar_url: userMetadata.avatar_url || userMetadata.picture || existingProfile.avatar_url,
               })
               .eq("id", data.user.id);
 
@@ -88,10 +88,10 @@ export async function GET(request: NextRequest) {
         // Don't block the authentication flow for profile errors
       }
 
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${siteUrl}${next}`);
     }
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  return NextResponse.redirect(`${siteUrl}/auth/auth-code-error`);
 }

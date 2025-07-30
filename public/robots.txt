@@ -38,7 +38,7 @@ Allow: /privacy
 Allow: /terms
 
 # Sitemap location
-Sitemap: https://quizforce.com/sitemap.xml
+Sitemap: https://quizforce.ai/sitemap.xml
 
 # Crawl delay (optional, can help with server load)
 Crawl-delay: 1 

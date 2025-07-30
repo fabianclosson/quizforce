@@ -107,7 +107,7 @@ describe('Environment Configuration', () => {
 
       const { config } = require('../config');
       
-      expect(config.siteUrl).toBe('https://quizforce.com'); // Default value
+      expect(config.siteUrl).toBe('https://quizforce.ai'); // Default value
       expect(config.auth.google.isConfigured).toBe(false);
       expect(config.sentry.isConfigured).toBe(false);
       expect(config.rateLimit.redis.isConfigured).toBe(false);

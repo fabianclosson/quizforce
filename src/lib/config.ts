@@ -10,7 +10,7 @@ const envSchema = z.object({
   
   // Next.js specific
   NEXT_RUNTIME: z.enum(["nodejs", "edge"]).optional(),
-  NEXT_PUBLIC_SITE_URL: z.string().url().default("https://quizforce.com"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default("https://quizforce.ai"),
   CI: z.string().optional(),
   
   // Supabase Configuration (Required in production)
