@@ -818,7 +818,7 @@ export function LandingPageClient() {
                 </li>
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    AI Specialist
+                    Agentforce Specialist
                   </Link>
                 </li>
               </ul>
