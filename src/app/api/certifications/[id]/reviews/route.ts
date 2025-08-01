@@ -11,8 +11,31 @@ export async function GET(
     const supabase = await createServerSupabaseClient();
     const certificationId = params.id;
 
+    console.log('Reviews API: Fetching reviews for certification:', certificationId);
+
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error('Reviews API: Error getting user:', userError);
+    }
+    console.log('Reviews API: Current user:', user?.id || 'anonymous');
+
+    // First, verify the certification exists
+    const { data: certification, error: certError } = await supabase
+      .from('certifications')
+      .select('id, name')
+      .eq('id', certificationId)
+      .single();
+
+    if (certError) {
+      console.error('Reviews API: Error fetching certification:', certError);
+      return NextResponse.json(
+        { error: 'Certification not found' },
+        { status: 404 }
+      );
+    }
+
+    console.log('Reviews API: Found certification:', certification.name);
 
     // Get all reviews with user information
     const { data: reviews, error: reviewsError } = await supabase
@@ -31,12 +54,14 @@ export async function GET(
       .order('created_at', { ascending: false });
 
     if (reviewsError) {
-      console.error('Error fetching reviews:', reviewsError);
+      console.error('Reviews API: Error fetching reviews:', reviewsError);
       return NextResponse.json(
-        { error: 'Failed to fetch reviews' },
+        { error: 'Failed to fetch reviews', details: reviewsError.message },
         { status: 500 }
       );
     }
+
+    console.log('Reviews API: Found', reviews?.length || 0, 'reviews');
 
     // Calculate stats
     const stats = {
@@ -58,19 +83,26 @@ export async function GET(
     let userReview = null;
 
     if (user) {
+      console.log('Reviews API: Checking enrollment for user:', user.id);
+      
       // Check if user is enrolled
-      const { data: enrollment } = await supabase
+      const { data: enrollment, error: enrollmentError } = await supabase
         .from('enrollments')
         .select('id')
         .eq('user_id', user.id)
         .eq('certification_id', certificationId)
-        .eq('payment_status', 'succeeded')
         .single();
 
+      if (enrollmentError && enrollmentError.code !== 'PGRST116') {
+        console.error('Reviews API: Error checking enrollment:', enrollmentError);
+      }
+
       canReview = !!enrollment;
+      console.log('Reviews API: User can review:', canReview);
 
       // Find user's review if exists
       userReview = reviews?.find((r: any) => r.user_id === user.id) || null;
+      console.log('Reviews API: User has existing review:', !!userReview);
     }
 
     const response: ReviewsResponse = {
@@ -80,11 +112,12 @@ export async function GET(
       can_review: canReview && !userReview
     };
 
+    console.log('Reviews API: Sending response with', response.reviews.length, 'reviews');
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error in GET /api/certifications/[id]/reviews:', error);
+    console.error('Reviews API: Unexpected error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -114,7 +147,6 @@ export async function POST(
       .select('id')
       .eq('user_id', user.id)
       .eq('certification_id', certificationId)
-      .eq('payment_status', 'succeeded')
       .single();
 
     if (enrollmentError || !enrollment) {
