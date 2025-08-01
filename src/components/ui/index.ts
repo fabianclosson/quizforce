@@ -62,6 +62,7 @@ export { Label } from "./label";
 export * from "./loading-spinner";
 export * from "./spinner";
 export * from "./optimized-image";
+export * from "./star-rating";
 export {
   MobileForm,
   MobileFormField,
