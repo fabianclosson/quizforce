@@ -151,8 +151,21 @@ async function handleCertificationCheckout(
   const session = await withExternalApiErrorHandling(
     async () => {
       if (!stripe) {
+        console.error("Stripe configuration error:", {
+          secretKey: !!process.env.STRIPE_SECRET_KEY,
+          publishableKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+          webhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+        });
         throw new Error("Stripe is not configured");
       }
+      
+      console.log("Creating Stripe checkout session for:", {
+        certificationId: certification.id,
+        certificationName: certification.name,
+        userId: user.id,
+        userEmail: user.email,
+        amount: certification.price_cents,
+      });
       return await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -177,7 +190,7 @@ async function handleCertificationCheckout(
           certification_name: certification.name,
           type: "certification",
         },
-        customer_email: user.email,
+        customer_email: user.email || undefined,
       });
     },
     "Stripe",
