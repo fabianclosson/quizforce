@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { CSRFProvider } from "@/components/providers/csrf-provider";
 import { PerformanceMonitor } from "@/components/performance/performance-monitor";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
 import { siteConfig } from "@/lib/metadata";
@@ -87,11 +88,13 @@ export default function RootLayout({
       <body className="min-h-screen bg-background font-sans antialiased">
         <QueryProvider>
           <AuthProvider>
-            <PerformanceMonitor>
-              <ConditionalLayout>
-                {children}
-              </ConditionalLayout>
-            </PerformanceMonitor>
+            <CSRFProvider>
+              <PerformanceMonitor>
+                <ConditionalLayout>
+                  {children}
+                </ConditionalLayout>
+              </PerformanceMonitor>
+            </CSRFProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

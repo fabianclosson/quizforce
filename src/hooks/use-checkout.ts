@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { getStripe } from "@/lib/stripe";
+import { createSecureFetchOptions } from "@/lib/csrf-client";
 
 interface CheckoutResponse {
   sessionId: string;
@@ -16,9 +17,9 @@ export const useCheckoutCertification = () => {
     mutationFn: async (certificationId: string) => {
       const response = await fetch(
         `/api/certifications/${certificationId}/checkout`,
-        {
+        createSecureFetchOptions({
           method: "POST",
-        }
+        })
       );
 
       if (!response.ok) {
@@ -57,9 +58,11 @@ export const useCheckoutCertification = () => {
 export const useCheckoutPackage = () => {
   return useMutation<CheckoutResponse, Error, string>({
     mutationFn: async (packageId: string) => {
-      const response = await fetch(`/api/packages/${packageId}/checkout`, {
-        method: "POST",
-      });
+      const response = await fetch(`/api/packages/${packageId}/checkout`, 
+        createSecureFetchOptions({
+          method: "POST",
+        })
+      );
 
       if (!response.ok) {
         const errorData: CheckoutError = await response.json();
