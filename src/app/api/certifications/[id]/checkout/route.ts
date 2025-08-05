@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createServiceSupabaseClient } from "@/lib/supabase";
 import { ApiValidationMiddleware } from "@/lib/api-validation-helpers";
 import { ValidationPatterns } from "@/lib/validators";
 import { z } from "zod";
@@ -71,7 +71,7 @@ async function handleCertificationCheckout(
   }
 
   const { id } = paramValidation.data!;
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
 
   // Check authentication
   const {

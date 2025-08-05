@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createServiceSupabaseClient } from "@/lib/supabase";
 import { ValidationPatterns } from "@/lib/validators";
 import { z } from "zod";
 import {
@@ -36,7 +36,7 @@ async function handlePackageCheckout(
   { params }: RouteParams
 ) {
   const { id: packageId } = await params;
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
 
   // Validate parameters
   const validatedParams = checkoutParamsSchema.parse({ id: packageId });
