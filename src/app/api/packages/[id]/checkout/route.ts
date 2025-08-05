@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createServiceSupabaseClient } from "@/lib/supabase";
+import { createServerSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase";
 import { ValidationPatterns } from "@/lib/validators";
 import { z } from "zod";
 import {
@@ -36,8 +36,7 @@ async function handlePackageCheckout(
   { params }: RouteParams
 ) {
   const { id: packageId } = await params;
-  const supabase = createServiceSupabaseClient();
-
+  
   // Validate parameters
   const validatedParams = checkoutParamsSchema.parse({ id: packageId });
 
@@ -52,11 +51,17 @@ async function handlePackageCheckout(
   }
   const validatedBody = checkoutBodySchema.parse(body);
 
+  // Use server client for authentication (reads user session)
+  const serverSupabase = await createServerSupabaseClient();
+  
   // Check if user is authenticated
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await serverSupabase.auth.getUser();
+  
+  // Use service client for database operations (elevated permissions)
+  const supabase = createServiceSupabaseClient();
 
   if (authError || !user) {
     throw createAuthenticationError(

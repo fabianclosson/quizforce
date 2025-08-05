@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { createServiceSupabaseClient } from "@/lib/supabase";
+import { createServerSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase";
 import { ApiValidationMiddleware } from "@/lib/api-validation-helpers";
 import { ValidationPatterns } from "@/lib/validators";
 import { z } from "zod";
@@ -71,13 +71,18 @@ async function handleCertificationCheckout(
   }
 
   const { id } = paramValidation.data!;
-  const supabase = createServiceSupabaseClient();
-
+  
+  // Use server client for authentication (reads user session)
+  const serverSupabase = await createServerSupabaseClient();
+  
   // Check authentication
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await serverSupabase.auth.getUser();
+  
+  // Use service client for database operations (elevated permissions)
+  const supabase = createServiceSupabaseClient();
 
   if (authError || !user) {
     throw createAuthenticationError("Authentication required for checkout");
