@@ -51,20 +51,26 @@ async function handleCertificationCheckout(
   }
 
   // Validate request body (optional)
-  const bodyValidation = await ApiValidationMiddleware.validateBody(
-    request,
-    checkoutBodySchema,
-    { textFields: ["successUrl", "cancelUrl"] }
-  );
+  let bodyData = undefined;
+  const contentType = request.headers.get("content-type");
+  
+  if (contentType?.includes("application/json")) {
+    const bodyValidation = await ApiValidationMiddleware.validateBody(
+      request,
+      checkoutBodySchema,
+      { textFields: ["successUrl", "cancelUrl"] }
+    );
 
-  if (!bodyValidation.success) {
-    throw createValidationError("Invalid request body", {
-      errors: bodyValidation.errors,
-    });
+    if (!bodyValidation.success) {
+      throw createValidationError("Invalid request body", {
+        errors: bodyValidation.errors,
+      });
+    }
+    
+    bodyData = bodyValidation.data;
   }
 
   const { id } = paramValidation.data!;
-  const bodyData = bodyValidation.data;
   const supabase = await createServerSupabaseClient();
 
   // Check authentication

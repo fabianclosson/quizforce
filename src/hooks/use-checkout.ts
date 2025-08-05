@@ -18,9 +18,6 @@ export const useCheckoutCertification = () => {
         `/api/certifications/${certificationId}/checkout`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
         }
       );
 
@@ -62,9 +59,6 @@ export const useCheckoutPackage = () => {
     mutationFn: async (packageId: string) => {
       const response = await fetch(`/api/packages/${packageId}/checkout`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
 
       if (!response.ok) {
