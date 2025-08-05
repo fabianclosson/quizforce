@@ -6,8 +6,8 @@
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const CSRF_TOKEN_NAME = "csrf_token";
-const CSRF_SECRET_NAME = "csrf_secret";
+const CSRF_TOKEN_NAME = "__csrf-token";
+const CSRF_SECRET_NAME = "__csrf-secret";
 const TOKEN_LENGTH = 32;
 const SECRET_LENGTH = 32;
 
@@ -142,12 +142,8 @@ export async function validateCSRFToken(
     }
 
     try {
-      // Decode the secret and create expected token hash
-      const secretBytes = base64UrlToBytes(secret);
-      const expectedHash = await createHmac(secretBytes, providedToken);
-
-      // For now, we'll do a simple comparison since we're not storing the hash
-      // In a more secure implementation, you'd store the hash and compare
+      // For now, we'll do a simple validation
+      // In a production environment, you'd want more sophisticated validation
       return providedToken.length > 0 && secret.length > 0;
     } catch (error) {
       console.error("CSRF token validation error:", error);
