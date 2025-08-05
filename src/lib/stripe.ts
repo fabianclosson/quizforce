@@ -5,7 +5,7 @@ import { config } from "./config";
 // Server-side Stripe instance - only initialize if key is available
 export const stripe = config.stripe.isConfigured
   ? new Stripe(config.stripe.secretKey, {
-      apiVersion: "2025-05-28.basil",
+      apiVersion: "2025-06-30.basil",
       typescript: true,
     })
   : null;

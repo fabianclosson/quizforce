@@ -24,7 +24,7 @@
     },
     {
       "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
+      "sizes": "16x16",
       "type": "image/png"
     }
   ]

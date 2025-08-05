@@ -27,8 +27,8 @@ export function generateCSPHeader(nonce?: string): string {
     // Styles: Allow self, nonce, inline styles (for CSS-in-JS), and Google Fonts
     `style-src 'self' ${nonceStr} 'unsafe-inline' https://fonts.googleapis.com`.trim(),
 
-    // Images: Allow self, data URLs, and Supabase storage
-    "img-src 'self' data: https://*.supabase.co https://*.stripe.com",
+    // Images: Allow self, data URLs, Supabase storage, and Google profile images
+    "img-src 'self' data: https://*.supabase.co https://*.stripe.com https://lh3.googleusercontent.com",
 
     // AJAX/WebSocket/Fetch: Allow self, Supabase API, and Stripe API
     "connect-src 'self' https://*.supabase.co https://api.stripe.com wss://*.supabase.co",
@@ -111,7 +111,7 @@ export function getDevelopmentCSP(): string {
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com",
+    "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com https://lh3.googleusercontent.com",
     "connect-src 'self' https://*.supabase.co https://api.stripe.com ws: wss:",
     "font-src 'self' https://fonts.gstatic.com",
     "frame-src https://js.stripe.com",
