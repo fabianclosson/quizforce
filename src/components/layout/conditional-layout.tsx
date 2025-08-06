@@ -32,6 +32,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
     "/account",
     "/enrollment-history",
     "/certifications", // Add enrollment confirmation pages
+    "/checkout", // Hide footer on checkout pages (success, cancel, etc.)
   ];
 
   // Always render consistently - no conditional mounting to prevent hydration mismatches
