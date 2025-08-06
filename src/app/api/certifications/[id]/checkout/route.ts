@@ -36,10 +36,13 @@ async function handleCertificationCheckout(
   request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse> {
+  const steps: string[] = [];
+  
   try {
-    console.log("=== CHECKOUT DEBUG START ===");
+    steps.push("1. Starting checkout process");
     
     const resolvedParams = await params;
+    steps.push("2. Resolved route parameters");
 
     // Validate URL parameters
     const paramValidation = ApiValidationMiddleware.validateParams(
@@ -48,116 +51,167 @@ async function handleCertificationCheckout(
     );
 
     if (!paramValidation.success) {
-      throw createValidationError("Invalid certification ID", {
-        errors: paramValidation.errors,
-      });
+      return NextResponse.json({
+        error: "Parameter validation failed",
+        steps,
+        validationErrors: paramValidation.errors
+      }, { status: 400 });
     }
+    
+    steps.push("3. Parameter validation passed");
 
     // Validate request body (optional)
     let bodyData = undefined;
     const contentType = request.headers.get("content-type");
     
     if (contentType?.includes("application/json")) {
-      const bodyValidation = await ApiValidationMiddleware.validateBody(
-        request,
-        checkoutBodySchema,
-        { textFields: ["successUrl", "cancelUrl"] }
-      );
+      try {
+        const bodyValidation = await ApiValidationMiddleware.validateBody(
+          request,
+          checkoutBodySchema,
+          { textFields: ["successUrl", "cancelUrl"] }
+        );
 
-      if (!bodyValidation.success) {
-        throw createValidationError("Invalid request body", {
-          errors: bodyValidation.errors,
-        });
+        if (!bodyValidation.success) {
+          return NextResponse.json({
+            error: "Body validation failed",
+            steps,
+            validationErrors: bodyValidation.errors
+          }, { status: 400 });
+        }
+        
+        bodyData = bodyValidation.data;
+        steps.push("4. Body validation passed");
+      } catch (bodyError: any) {
+        return NextResponse.json({
+          error: "Body validation error",
+          steps,
+          bodyError: bodyError.message
+        }, { status: 400 });
       }
-      
-      bodyData = bodyValidation.data;
+    } else {
+      steps.push("4. No body to validate");
     }
 
     const { id } = paramValidation.data!;
-    
-    console.log("Certification ID:", id);
+    steps.push(`5. Processing certification ID: ${id}`);
     
     // Use server client for authentication (reads user session)
-    const serverSupabase = await createServerSupabaseClient();
+    let serverSupabase;
+    try {
+      serverSupabase = await createServerSupabaseClient();
+      steps.push("6. Created server Supabase client");
+    } catch (supabaseError: any) {
+      return NextResponse.json({
+        error: "Failed to create Supabase client",
+        steps,
+        supabaseError: supabaseError.message
+      }, { status: 500 });
+    }
     
     // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await serverSupabase.auth.getUser();
+    let user;
+    try {
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await serverSupabase.auth.getUser();
+      
+      if (authError || !authUser) {
+        return NextResponse.json({
+          error: "Authentication failed",
+          steps,
+          authError: authError?.message || "No user found"
+        }, { status: 401 });
+      }
+      
+      user = authUser;
+      steps.push(`7. User authenticated: ${user.id}`);
+    } catch (authError: any) {
+      return NextResponse.json({
+        error: "Authentication error",
+        steps,
+        authError: authError.message
+      }, { status: 500 });
+    }
     
-    // Use service client for database operations (elevated permissions)
-    const supabase = createServiceSupabaseClient();
-
-    console.log("User auth check:", { 
-      hasUser: !!user, 
-      userId: user?.id, 
-      userEmail: user?.email,
-      authError: authError?.message 
-    });
-
-    if (authError || !user) {
-      console.log("Authentication failed");
-      throw createAuthenticationError("Authentication required for checkout");
+    // Use service client for database operations
+    let supabase;
+    try {
+      supabase = createServiceSupabaseClient();
+      steps.push("8. Created service Supabase client");
+    } catch (serviceError: any) {
+      return NextResponse.json({
+        error: "Failed to create service client",
+        steps,
+        serviceError: serviceError.message
+      }, { status: 500 });
     }
 
     // Get certification details
-    const certificationData = await withDatabaseErrorHandling(
-      async () => {
-        const result = await supabase
-          .from("certifications")
-          .select("id, name, price_cents, slug, is_active")
-          .eq("id", id)
-          .eq("is_active", true)
-          .single();
-        return result;
-      },
-      { operation: "fetch_certification", certificationId: id }
-    );
+    let certification;
+    try {
+      const certificationData = await supabase
+        .from("certifications")
+        .select("id, name, price_cents, slug, is_active")
+        .eq("id", id)
+        .eq("is_active", true)
+        .single();
 
-    if (!certificationData.data || certificationData.error) {
-      throw createNotFoundError(`Certification not found: ${id}`);
+      if (certificationData.error || !certificationData.data) {
+        return NextResponse.json({
+          error: "Certification not found",
+          steps,
+          certificationError: certificationData.error?.message
+        }, { status: 404 });
+      }
+
+      certification = certificationData.data;
+      steps.push(`9. Found certification: ${certification.name} ($${certification.price_cents / 100})`);
+    } catch (certError: any) {
+      return NextResponse.json({
+        error: "Database error fetching certification",
+        steps,
+        certError: certError.message
+      }, { status: 500 });
     }
-
-    const certification = certificationData.data;
-    
-    console.log("Certification found:", {
-      id: certification.id,
-      name: certification.name,
-      price: certification.price_cents
-    });
 
     // Check if certification is free
     if (certification.price_cents === 0) {
-      throw createValidationError(
-        "This certification is free. Use the enrollment endpoint instead."
-      );
+      return NextResponse.json({
+        error: "This certification is free",
+        steps,
+        message: "Use the enrollment endpoint instead"
+      }, { status: 400 });
     }
+    
+    steps.push("10. Certification is paid, proceeding");
 
     // Check for existing active enrollment
-    const existingEnrollment = await withDatabaseErrorHandling(
-      async () => {
-        const result = await supabase
-          .from("enrollments")
-          .select("id, expires_at")
-          .eq("user_id", user.id)
-          .eq("certification_id", certification.id)
-          .gte("expires_at", new Date().toISOString())
-          .single();
-        return result;
-      },
-      {
-        operation: "check_active_enrollment",
-        userId: user.id,
-        certificationId: id,
-      }
-    );
+    try {
+      const existingEnrollment = await supabase
+        .from("enrollments")
+        .select("id, expires_at")
+        .eq("user_id", user.id)
+        .eq("certification_id", certification.id)
+        .gte("expires_at", new Date().toISOString())
+        .single();
 
-    if (existingEnrollment.data) {
-      throw createValidationError("Already enrolled in this certification");
+      if (existingEnrollment.data) {
+        return NextResponse.json({
+          error: "Already enrolled",
+          steps,
+          message: "User is already enrolled in this certification"
+        }, { status: 400 });
+      }
+      
+      steps.push("11. No existing enrollment found");
+    } catch (enrollmentError: any) {
+      // This is expected if no enrollment exists, so we continue
+      steps.push("11. No existing enrollment (expected)");
     }
 
-    // Use custom URLs if provided and valid, otherwise use defaults
+    // Prepare URLs
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
     const successUrl =
       bodyData?.successUrl ||
@@ -166,77 +220,73 @@ async function handleCertificationCheckout(
       bodyData?.cancelUrl ||
       `${baseUrl}/checkout/cancel?type=certification&name=${encodeURIComponent(certification.name)}&return_url=${encodeURIComponent(`/catalog/certification/${certification.slug}`)}`;
 
-    console.log("Creating Stripe checkout session...");
+    steps.push("12. Prepared success/cancel URLs");
 
     // Create Stripe checkout session
-    const session = await withExternalApiErrorHandling(
-      async () => {
-        if (!stripe) {
-          console.error("Stripe configuration error: stripe instance is null");
-          throw new Error("Stripe is not configured");
-        }
-        
-        console.log("Stripe session parameters:", {
-          certificationId: certification.id,
-          certificationName: certification.name,
-          userId: user.id,
-          userEmail: user.email,
-          amount: certification.price_cents,
-          successUrl,
-          cancelUrl,
-        });
-        
-        return await stripe.checkout.sessions.create({
-          payment_method_types: ["card"],
-          line_items: [
-            {
-              price_data: {
-                currency: "usd",
-                product_data: {
-                  name: certification.name,
-                  description: `QuizForce Certification: ${certification.name}`,
-                },
-                unit_amount: certification.price_cents,
-              },
-              quantity: 1,
-            },
-          ],
-          mode: "payment",
-          success_url: successUrl,
-          cancel_url: cancelUrl,
-          metadata: {
-            user_id: user.id,
-            certification_id: certification.id,
-            certification_name: certification.name,
-            type: "certification",
-          },
-          customer_email: user.email || undefined,
-        });
-      },
-      "Stripe",
-      {
-        operation: "create_checkout_session",
-        certificationId: id,
-        userId: user.id,
-        amount: certification.price_cents,
-      }
-    );
-
-    console.log("Stripe session created successfully:", {
-      sessionId: session.id,
-      url: session.url
-    });
-
-    console.log("=== CHECKOUT DEBUG SUCCESS ===");
-
-    return NextResponse.json({
-      sessionId: session.id,
-      url: session.url,
-    });
+    if (!stripe) {
+      return NextResponse.json({
+        error: "Stripe not configured",
+        steps,
+        message: "Stripe instance is null"
+      }, { status: 500 });
+    }
     
-  } catch (error) {
-    console.error("=== CHECKOUT DEBUG ERROR ===", error);
-    throw error;
+    steps.push("13. Stripe instance available");
+
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: certification.name,
+                description: `QuizForce Certification: ${certification.name}`,
+              },
+              unit_amount: certification.price_cents,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: {
+          user_id: user.id,
+          certification_id: certification.id,
+          certification_name: certification.name,
+          type: "certification",
+        },
+        customer_email: user.email || undefined,
+      });
+
+      steps.push(`14. Stripe session created: ${session.id}`);
+
+      return NextResponse.json({
+        sessionId: session.id,
+        url: session.url,
+        steps,
+        success: true
+      });
+      
+    } catch (stripeError: any) {
+      return NextResponse.json({
+        error: "Stripe session creation failed",
+        steps,
+        stripeError: stripeError.message,
+        stripeCode: stripeError.code,
+        stripeType: stripeError.type
+      }, { status: 500 });
+    }
+    
+  } catch (error: any) {
+    return NextResponse.json({
+      error: "Unexpected error",
+      steps,
+      unexpectedError: error.message,
+      stack: error.stack
+    }, { status: 500 });
   }
 }
 
