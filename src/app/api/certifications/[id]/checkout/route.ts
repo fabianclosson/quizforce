@@ -212,7 +212,7 @@ async function handleCertificationCheckout(
     }
 
     // Prepare URLs
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${request.headers.get('host')}`;
     const successUrl =
       bodyData?.successUrl ||
       `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&type=certification&name=${encodeURIComponent(certification.name)}`;
@@ -220,7 +220,7 @@ async function handleCertificationCheckout(
       bodyData?.cancelUrl ||
       `${baseUrl}/checkout/cancel?type=certification&name=${encodeURIComponent(certification.name)}&return_url=${encodeURIComponent(`/catalog/certification/${certification.slug}`)}`;
 
-    steps.push("12. Prepared success/cancel URLs");
+    steps.push(`12. Prepared URLs - Base: ${baseUrl}, Success: ${successUrl.substring(0, 100)}...`);
 
     // Create Stripe checkout session
     if (!stripe) {
