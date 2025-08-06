@@ -15,8 +15,10 @@ let stripePromise: Promise<StripeJS | null>;
 
 export const getStripe = () => {
   if (!stripePromise) {
-    stripePromise = config.stripe.isConfigured
-      ? loadStripe(config.stripe.publishableKey)
+    // For client-side, read directly from environment variable to bypass config validation issues
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    stripePromise = publishableKey
+      ? loadStripe(publishableKey)
       : Promise.resolve(null);
   }
   return stripePromise;
