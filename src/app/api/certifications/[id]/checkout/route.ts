@@ -1,11 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase";
-import { config } from "@/lib/config";
+import { stripe } from "@/lib/stripe";
+import { createServerSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase";
+import { ApiValidationMiddleware } from "@/lib/api-validation-helpers";
+import { ValidationPatterns } from "@/lib/validators";
+import { z } from "zod";
 import {
   withApiErrorHandler,
   createAuthenticationError,
   createNotFoundError,
+  createValidationError,
+  withDatabaseErrorHandling,
+  withExternalApiErrorHandling,
 } from "@/lib/api-error-handler";
+
+// Validation schema for certification checkout
+const checkoutParamsSchema = z.object({
+  id: ValidationPatterns.uuid,
+});
+
+// Optional body schema for additional checkout options
+const checkoutBodySchema = z
+  .object({
+    successUrl: ValidationPatterns.url.optional(),
+    cancelUrl: ValidationPatterns.url.optional(),
+  })
+  .optional();
 
 interface RouteParams {
   params: Promise<{
@@ -21,36 +40,55 @@ async function handleCertificationCheckout(
     console.log("=== CHECKOUT DEBUG START ===");
     
     const resolvedParams = await params;
-    const certificationId = resolvedParams.id;
+
+    // Validate URL parameters
+    const paramValidation = ApiValidationMiddleware.validateParams(
+      resolvedParams,
+      checkoutParamsSchema
+    );
+
+    if (!paramValidation.success) {
+      throw createValidationError("Invalid certification ID", {
+        errors: paramValidation.errors,
+      });
+    }
+
+    // Validate request body (optional)
+    let bodyData = undefined;
+    const contentType = request.headers.get("content-type");
     
-    console.log("Certification ID:", certificationId);
+    if (contentType?.includes("application/json")) {
+      const bodyValidation = await ApiValidationMiddleware.validateBody(
+        request,
+        checkoutBodySchema,
+        { textFields: ["successUrl", "cancelUrl"] }
+      );
+
+      if (!bodyValidation.success) {
+        throw createValidationError("Invalid request body", {
+          errors: bodyValidation.errors,
+        });
+      }
+      
+      bodyData = bodyValidation.data;
+    }
+
+    const { id } = paramValidation.data!;
     
-    // Debug Stripe configuration
-    console.log("=== STRIPE CONFIGURATION DEBUG ===");
-    console.log("Environment variables check:", {
-      hasStripeSecretKey: !!process.env.STRIPE_SECRET_KEY,
-      hasStripePublishableKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      hasStripeWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
-      stripeSecretKeyLength: process.env.STRIPE_SECRET_KEY?.length || 0,
-      stripePublishableKeyLength: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.length || 0,
-    });
+    console.log("Certification ID:", id);
     
-    console.log("Config object check:", {
-      stripeIsConfigured: config.stripe.isConfigured,
-      hasSecretKey: !!config.stripe.secretKey,
-      hasPublishableKey: !!config.stripe.publishableKey,
-      hasWebhookSecret: !!config.stripe.webhookSecret,
-      secretKeyLength: config.stripe.secretKey.length,
-      publishableKeyLength: config.stripe.publishableKey.length,
-    });
+    // Use server client for authentication (reads user session)
+    const serverSupabase = await createServerSupabaseClient();
     
     // Check authentication
-    const serverSupabase = await createServerSupabaseClient();
     const {
       data: { user },
       error: authError,
     } = await serverSupabase.auth.getUser();
     
+    // Use service client for database operations (elevated permissions)
+    const supabase = createServiceSupabaseClient();
+
     console.log("User auth check:", { 
       hasUser: !!user, 
       userId: user?.id, 
@@ -63,16 +101,137 @@ async function handleCertificationCheckout(
       throw createAuthenticationError("Authentication required for checkout");
     }
 
-    // For now, just return a simple response to test if we get this far
-    console.log("=== CHECKOUT DEBUG SUCCESS ===");
+    // Get certification details
+    const certificationData = await withDatabaseErrorHandling(
+      async () => {
+        const result = await supabase
+          .from("certifications")
+          .select("id, name, price_cents, slug, is_active")
+          .eq("id", id)
+          .eq("is_active", true)
+          .single();
+        return result;
+      },
+      { operation: "fetch_certification", certificationId: id }
+    );
+
+    if (!certificationData.data || certificationData.error) {
+      throw createNotFoundError(`Certification not found: ${id}`);
+    }
+
+    const certification = certificationData.data;
     
+    console.log("Certification found:", {
+      id: certification.id,
+      name: certification.name,
+      price: certification.price_cents
+    });
+
+    // Check if certification is free
+    if (certification.price_cents === 0) {
+      throw createValidationError(
+        "This certification is free. Use the enrollment endpoint instead."
+      );
+    }
+
+    // Check for existing active enrollment
+    const existingEnrollment = await withDatabaseErrorHandling(
+      async () => {
+        const result = await supabase
+          .from("enrollments")
+          .select("id, expires_at")
+          .eq("user_id", user.id)
+          .eq("certification_id", certification.id)
+          .gte("expires_at", new Date().toISOString())
+          .single();
+        return result;
+      },
+      {
+        operation: "check_active_enrollment",
+        userId: user.id,
+        certificationId: id,
+      }
+    );
+
+    if (existingEnrollment.data) {
+      throw createValidationError("Already enrolled in this certification");
+    }
+
+    // Use custom URLs if provided and valid, otherwise use defaults
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const successUrl =
+      bodyData?.successUrl ||
+      `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&type=certification&name=${encodeURIComponent(certification.name)}`;
+    const cancelUrl =
+      bodyData?.cancelUrl ||
+      `${baseUrl}/checkout/cancel?type=certification&name=${encodeURIComponent(certification.name)}&return_url=${encodeURIComponent(`/catalog/certification/${certification.slug}`)}`;
+
+    console.log("Creating Stripe checkout session...");
+
+    // Create Stripe checkout session
+    const session = await withExternalApiErrorHandling(
+      async () => {
+        if (!stripe) {
+          console.error("Stripe configuration error: stripe instance is null");
+          throw new Error("Stripe is not configured");
+        }
+        
+        console.log("Stripe session parameters:", {
+          certificationId: certification.id,
+          certificationName: certification.name,
+          userId: user.id,
+          userEmail: user.email,
+          amount: certification.price_cents,
+          successUrl,
+          cancelUrl,
+        });
+        
+        return await stripe.checkout.sessions.create({
+          payment_method_types: ["card"],
+          line_items: [
+            {
+              price_data: {
+                currency: "usd",
+                product_data: {
+                  name: certification.name,
+                  description: `QuizForce Certification: ${certification.name}`,
+                },
+                unit_amount: certification.price_cents,
+              },
+              quantity: 1,
+            },
+          ],
+          mode: "payment",
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          metadata: {
+            user_id: user.id,
+            certification_id: certification.id,
+            certification_name: certification.name,
+            type: "certification",
+          },
+          customer_email: user.email || undefined,
+        });
+      },
+      "Stripe",
+      {
+        operation: "create_checkout_session",
+        certificationId: id,
+        userId: user.id,
+        amount: certification.price_cents,
+      }
+    );
+
+    console.log("Stripe session created successfully:", {
+      sessionId: session.id,
+      url: session.url
+    });
+
+    console.log("=== CHECKOUT DEBUG SUCCESS ===");
+
     return NextResponse.json({
-      success: true,
-      message: "Checkout debug - authentication successful",
-      certificationId,
-      userId: user.id,
-      userEmail: user.email,
-      stripeConfigured: config.stripe.isConfigured,
+      sessionId: session.id,
+      url: session.url,
     });
     
   } catch (error) {
