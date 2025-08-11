@@ -3,3 +3,97 @@ description:
 globs:
 alwaysApply: false
 ---
+# QuizForce Simplicity Rule
+
+**CRITICAL: STOP OVER-ENGINEERING**
+
+## **Core Principle**
+- **Build ONLY what the PRD specifies**
+- **No additional features, fields, or complexity**
+- **Simple practice exam platform, not enterprise software**
+
+## **What QuizForce Actually Is**
+- ✅ **Practice exam platform** for Salesforce certifications
+- ✅ **One-time purchase** with 12-month access
+- ✅ **8 categories** of certifications (Associates, Admins, etc.)
+- ✅ **Individual bundles** and **package deals**
+- ✅ **Free vs Premium** content
+- ✅ **Basic user profiles** (first name, last name, email, avatar)
+
+## **What QuizForce Is NOT**
+- ❌ Real certification management system
+- ❌ Enterprise user management platform
+- ❌ Complex learning management system (LMS)
+- ❌ Social platform with bios, phone numbers, etc.
+- ❌ Multi-tenant SaaS with complex permissions
+
+## **Database Design Rules**
+
+### **❌ NEVER Add These Unless Explicitly in PRD:**
+- Version management/tracking
+- Prerequisites and dependencies
+- Complex user fields (bio, phone, birth date, timezone)
+- Audit trails beyond basic security
+- Complex role hierarchies
+- Multi-tenancy features
+- Advanced analytics tables
+- Social features
+- Complex pricing models beyond free/premium
+
+### **✅ ONLY Add What PRD Specifies:**
+- **User Data**: first_name, last_name, email, avatar_url
+- **Certifications**: name, description, price, category
+- **Exams**: questions, answers, scoring
+- **Purchases**: simple payment tracking
+- **Progress**: basic completion tracking
+
+## **Implementation Guidelines**
+
+### **Before Adding ANY Feature/Field:**
+1. **Find it in the PRD** - If it's not explicitly mentioned, don't add it
+2. **Ask: "Does QuizForce need this?"** - Focus on practice exams, not enterprise features
+3. **Keep it simple** - Choose the most straightforward implementation
+
+### **Database Schema Approach:**
+- **Flat structures** over complex relationships
+- **Simple foreign keys** over junction tables (unless needed)
+- **Basic indexes** only on commonly queried fields
+- **Minimal triggers** - only for essential automation
+- **Simple RLS** - users see their data, admins see all
+
+### **API Design:**
+- **RESTful endpoints** matching the PRD user flows
+- **Simple request/response** structures
+- **Basic error handling** - don't over-engineer error types
+- **Standard HTTP status codes**
+
+### **Component Design:**
+- **shadcn/ui components** as-is, minimal customization
+- **Simple props** - avoid complex configuration objects
+- **Basic state management** - useState/useEffect first, complex state management only if needed
+- **Standard patterns** - don't reinvent common UI patterns
+
+## **Red Flags - Stop and Reconsider:**
+- Adding fields not in PRD
+- Creating complex relationships
+- Building "future-proof" features
+- Adding enterprise-level features
+- Creating abstract/generic solutions
+- Building for scale beyond PRD requirements
+
+## **Green Flags - This is Good:**
+- Directly implements PRD user flows
+- Uses standard Next.js/React patterns
+- Leverages existing libraries (Supabase, shadcn/ui)
+- Simple, readable code
+- Matches PRD data requirements exactly
+
+## **When in Doubt:**
+- **Re-read the PRD section** for that feature
+- **Choose the simplest solution** that works
+- **Ask: "Would a user notice if this wasn't there?"**
+- **Default to NO** for any feature not explicitly mentioned
+
+---
+
+**Remember: QuizForce is a focused practice exam platform. Keep it simple, functional, and exactly what the PRD describes.**

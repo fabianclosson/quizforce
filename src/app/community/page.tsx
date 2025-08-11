@@ -9,8 +9,8 @@ import { Users, ArrowRight } from "lucide-react";
 
 export default function CommunityPage() {
   const handleRequestAccess = () => {
-    // TODO: Replace with actual Google Form link
-    const googleFormUrl = "https://forms.google.com/example";
+    // Google Form for Salesforce Certified Slack Community access
+    const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLScVWSPxT77vMUom_KtM4qqy27iXw3wHz7I8RJRa9QOS-fwpnA/viewform?usp=header";
 
     try {
       window.open(googleFormUrl, "_blank", "noopener,noreferrer");
