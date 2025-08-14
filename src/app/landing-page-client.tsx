@@ -70,7 +70,7 @@ function CertificationPath() {
     {
       name: "Agentforce Specialist",
       alt: "Agentforce Specialist",
-      src: "/images/certifications/ai-specialist.png",
+      src: "/images/certifications/agentforce-specialist.png",
       // Top-right of the large arc - moved down
       position: { top: "25%", left: "75%" },
     },
@@ -421,13 +421,13 @@ export function LandingPageClient() {
                 <div className="w-20 h-20 mx-auto mb-4 relative">
                   <Image
                     src="/images/certifications/administrator.png"
-                    alt="Administrator"
+                    alt="Platform Administrator"
                     width={80}
                     height={80}
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <CardTitle className="text-xl mb-2">Administrator</CardTitle>
+                <CardTitle className="text-xl mb-2">Platform Administrator</CardTitle>
                 <div className="flex justify-center">
                   <Badge variant="secondary" className="mb-2">
                     Most Popular
@@ -574,14 +574,14 @@ export function LandingPageClient() {
               <CardHeader className="text-center pb-4">
                 <div className="w-20 h-20 mx-auto mb-4 relative">
                   <Image
-                    src="/images/certifications/ai-specialist.png"
-                    alt="AI Specialist"
+                    src="/images/certifications/agentforce-specialist.png"
+                    alt="Agentforce Specialist"
                     width={80}
                     height={80}
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <CardTitle className="text-xl mb-2">AI Specialist</CardTitle>
+                <CardTitle className="text-xl mb-2">Agentforce Specialist</CardTitle>
                 <div className="flex justify-center">
                   <Badge variant="secondary" className="mb-2">
                     New
@@ -800,7 +800,7 @@ export function LandingPageClient() {
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <Link href="#" className="hover:text-white transition-colors">
-                    Administrator
+                    Platform Administrator
                   </Link>
                 </li>
                 <li>
