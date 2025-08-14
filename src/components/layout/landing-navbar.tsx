@@ -31,15 +31,7 @@ export function LandingNavbar() {
             <Button variant="ghost" asChild>
               <Link href="/auth/signin">Sign In</Link>
             </Button>
-            <Button
-              asChild
-              className="hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 hover:shadow-lg"
-            >
-              <Link href="/auth/signup">
-                Start Free Practice
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {/* Removed "Start Free Practice" for MVP – only Sign In button remains */}
           </div>
         </div>
       </div>

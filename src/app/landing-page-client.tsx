@@ -293,7 +293,7 @@ export function LandingPageClient() {
             </div>
 
             {/* Right Column - Hero Image with Certification Path */}
-            <div className="flex items-center justify-center relative lg:items-end mt-8 lg:mt-0">
+            <div className="hidden md:flex items-center justify-center relative lg:items-end mt-8 lg:mt-0">
               <div className="flex justify-center relative z-20">
                 <Image
                   src="/images/hero-image.png"
