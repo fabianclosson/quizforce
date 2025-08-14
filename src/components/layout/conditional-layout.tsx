@@ -20,6 +20,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
     "/auth/signup",
     "/auth/forgot-password",
     "/auth/reset-password",
+    "/auth/auth-code-error",
   ];
 
   // Pages that should hide the footer (using startsWith to handle sub-routes)
