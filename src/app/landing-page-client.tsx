@@ -293,20 +293,22 @@ export function LandingPageClient() {
             </div>
 
             {/* Right Column - Hero Image with Certification Path */}
-            <div className="hidden lg:flex items-end justify-center relative">
+            <div className="flex items-center justify-center relative lg:items-end mt-8 lg:mt-0">
               <div className="flex justify-center relative z-20">
                 <Image
                   src="/images/hero-image.png"
                   alt="Salesforce certified professional"
                   width={399}
                   height={456}
-                  className="w-auto h-auto max-w-full object-contain"
+                  className="w-auto h-auto max-w-full object-contain max-h-[300px] lg:max-h-none"
                   priority
                 />
               </div>
 
-              {/* Certification Path */}
-              <CertificationPath />
+              {/* Certification Path - Hidden on mobile for performance */}
+              <div className="hidden lg:block">
+                <CertificationPath />
+              </div>
             </div>
           </div>
         </div>
