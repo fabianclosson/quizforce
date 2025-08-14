@@ -25,7 +25,17 @@ export function MainLayout({ children, hideFooter = false }: MainLayoutProps) {
       {!hideFooter && (
         <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center justify-center">
-            <span>© 2024 QuizForce</span>
+            <span>
+              © 2025 QuizForce, by{" "}
+              <a 
+                href="https://x.com/FabWorks" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                FabWorks
+              </a>
+            </span>
           </div>
         </footer>
       )}
