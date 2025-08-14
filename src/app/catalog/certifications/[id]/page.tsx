@@ -20,7 +20,7 @@ import { formatPrice } from "@/lib/utils";
 import { PlaceholderImage } from "@/components/ui";
 import { getCertificationImage } from "@/lib/certification-images";
 import { EnrollmentButton } from "@/components/enrollment/enrollment-button";
-import { ReviewsSection } from "@/components/reviews";
+
 
 interface CertificationPageProps {
   params: Promise<{
@@ -307,11 +307,7 @@ export default function CertificationPage({ params }: CertificationPageProps) {
             </div>
           </div>
         </Card>
-        
-        {/* Reviews Section */}
-        <div className="mt-8">
-          <ReviewsSection certificationId={certification.id} />
-        </div>
+
       </div>
     </div>
   );
