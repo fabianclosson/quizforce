@@ -1,7 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { CertificationCategory } from "@/types/catalog";
 
 interface CatalogFiltersProps {
@@ -34,166 +40,112 @@ export function CatalogFilters({
   const { user } = useAuth();
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {/* Categories */}
       <div>
-        <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
-          Categories
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-          <Button
-            variant={selectedCategory === "all" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onCategoryChange("all")}
-          >
-            All Categories
-          </Button>
-          {categories.map(category => (
-            <Button
-              key={category.id}
-              variant={
-                selectedCategory === category.slug ? "default" : "outline"
-              }
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => onCategoryChange(category.slug)}
-            >
-              {category.name}
-            </Button>
-          ))}
-        </div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Category
+        </label>
+        <Select
+          value={selectedCategory || "all"}
+          onValueChange={onCategoryChange}
+        >
+          <SelectTrigger size="sm">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.slug}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Price Filter */}
       <div>
-        <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Price
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-          <Button
-            variant={priceFilter === "all" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onPriceFilterChange("all")}
-          >
-            All Prices
-          </Button>
-          <Button
-            variant={priceFilter === "free" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onPriceFilterChange("free")}
-          >
-            Free
-          </Button>
-          <Button
-            variant={priceFilter === "premium" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onPriceFilterChange("premium")}
-          >
-            Premium
-          </Button>
-        </div>
+        </label>
+        <Select value={priceFilter} onValueChange={onPriceFilterChange}>
+          <SelectTrigger size="sm">
+            <SelectValue placeholder="All Prices" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Prices</SelectItem>
+            <SelectItem value="free">Free</SelectItem>
+            <SelectItem value="premium">Premium</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Level Filter */}
       <div>
-        <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Level
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-          <Button
-            variant={levelFilter === "all" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onLevelFilterChange("all")}
-          >
-            All Levels
-          </Button>
-          <Button
-            variant={levelFilter === "Foundational" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onLevelFilterChange("Foundational")}
-          >
-            Foundational
-          </Button>
-          <Button
-            variant={levelFilter === "Intermediate" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onLevelFilterChange("Intermediate")}
-          >
-            Intermediate
-          </Button>
-          <Button
-            variant={levelFilter === "Advanced" ? "default" : "outline"}
-            size="sm"
-            className="h-7 px-3 text-xs"
-            onClick={() => onLevelFilterChange("Advanced")}
-          >
-            Advanced
-          </Button>
-        </div>
+        </label>
+        <Select value={levelFilter} onValueChange={onLevelFilterChange}>
+          <SelectTrigger size="sm">
+            <SelectValue placeholder="All Levels" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Levels</SelectItem>
+            <SelectItem value="Foundational">Foundational</SelectItem>
+            <SelectItem value="Intermediate">Intermediate</SelectItem>
+            <SelectItem value="Advanced">Advanced</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Product Filter */}
       <div>
-        <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Product
-        </h3>
-        <div className="flex flex-wrap gap-1.5">
-          <Button variant={productFilter === "all" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("all")}>All Products</Button>
-          <Button variant={productFilter === "Agentforce" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Agentforce")}>Agentforce</Button>
-          <Button variant={productFilter === "Commerce Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Commerce Cloud")}>Commerce Cloud</Button>
-          <Button variant={productFilter === "CRM Analytics" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("CRM Analytics")}>CRM Analytics</Button>
-          <Button variant={productFilter === "Data Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Data Cloud")}>Data Cloud</Button>
-          <Button variant={productFilter === "Experience Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Experience Cloud")}>Experience Cloud</Button>
-          <Button variant={productFilter === "Industry Solutions" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Industry Solutions")}>Industry Solutions</Button>
-          <Button variant={productFilter === "MuleSoft" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("MuleSoft")}>MuleSoft</Button>
-          <Button variant={productFilter === "Net Zero Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Net Zero Cloud")}>Net Zero Cloud</Button>
-          <Button variant={productFilter === "Sales Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Sales Cloud")}>Sales Cloud</Button>
-          <Button variant={productFilter === "Salesforce Platform" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Salesforce Platform")}>Salesforce Platform</Button>
-          <Button variant={productFilter === "Service Cloud" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Service Cloud")}>Service Cloud</Button>
-          <Button variant={productFilter === "Slack" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Slack")}>Slack</Button>
-          <Button variant={productFilter === "Tableau" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs" onClick={() => onProductFilterChange("Tableau")}>Tableau</Button>
-        </div>
+        </label>
+        <Select value={productFilter} onValueChange={onProductFilterChange}>
+          <SelectTrigger size="sm">
+            <SelectValue placeholder="All Products" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Products</SelectItem>
+            <SelectItem value="Agentforce">Agentforce</SelectItem>
+            <SelectItem value="Commerce Cloud">Commerce Cloud</SelectItem>
+            <SelectItem value="CRM Analytics">CRM Analytics</SelectItem>
+            <SelectItem value="Data Cloud">Data Cloud</SelectItem>
+            <SelectItem value="Experience Cloud">Experience Cloud</SelectItem>
+            <SelectItem value="Industry Solutions">Industry Solutions</SelectItem>
+            <SelectItem value="MuleSoft">MuleSoft</SelectItem>
+            <SelectItem value="Net Zero Cloud">Net Zero Cloud</SelectItem>
+            <SelectItem value="Sales Cloud">Sales Cloud</SelectItem>
+            <SelectItem value="Salesforce Platform">Salesforce Platform</SelectItem>
+            <SelectItem value="Service Cloud">Service Cloud</SelectItem>
+            <SelectItem value="Slack">Slack</SelectItem>
+            <SelectItem value="Tableau">Tableau</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Enrollment Filter - Only show if user is authenticated */}
+      {/* Enrollment Filter - Only show for authenticated users */}
       {user && (
         <div>
-          <h3 className="font-semibold text-xs uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Enrollment
-          </h3>
-          <div className="flex flex-wrap gap-1.5">
-            <Button
-              variant={enrollmentFilter === "all" ? "default" : "outline"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => onEnrollmentFilterChange("all")}
-            >
-              All Items
-            </Button>
-            <Button
-              variant={enrollmentFilter === "enrolled" ? "default" : "outline"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => onEnrollmentFilterChange("enrolled")}
-            >
-              My Enrolled
-            </Button>
-            <Button
-              variant={enrollmentFilter === "not_enrolled" ? "default" : "outline"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => onEnrollmentFilterChange("not_enrolled")}
-            >
-              Not Enrolled
-            </Button>
-          </div>
+          </label>
+          <Select
+            value={enrollmentFilter}
+            onValueChange={onEnrollmentFilterChange}
+          >
+            <SelectTrigger size="sm">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="enrolled">Enrolled</SelectItem>
+              <SelectItem value="not_enrolled">Not Enrolled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
     </div>
