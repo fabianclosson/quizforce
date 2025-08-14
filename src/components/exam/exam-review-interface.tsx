@@ -81,18 +81,7 @@ export function ExamReviewInterface({
     return `${minutes}m ${remainingSeconds}s`;
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "bg-green-100 text-green-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "hard":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+
 
   const getUserAnswerText = (question: ReviewQuestion) => {
     if (!question.user_answer) return "Not answered";
@@ -230,12 +219,7 @@ export function ExamReviewInterface({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge
-                  variant="outline"
-                  className={getDifficultyColor(currentQuestion.difficulty)}
-                >
-                  {currentQuestion.difficulty}
-                </Badge>
+
                 <Badge variant="outline">
                   <BookOpen className="w-3 h-3 mr-1" />
                   {currentQuestion.knowledge_area}

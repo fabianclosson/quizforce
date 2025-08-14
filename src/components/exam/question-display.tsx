@@ -59,18 +59,7 @@ export function QuestionDisplay({
   const isSelectionComplete = selectedCount === requiredSelections;
   const isOverSelected = selectedCount > requiredSelections;
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "hard":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+
 
   const getAnswerClassName = (answer: { id: string; is_correct: boolean }) => {
     const isSelected = selectedAnswerIds.includes(answer.id);
@@ -146,16 +135,7 @@ export function QuestionDisplay({
             <Badge variant="outline" className="text-sm px-3 py-1">
               Question {questionNumber} of {totalQuestions}
             </Badge>
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-xs px-2 py-1",
-                getDifficultyColor(question.difficulty_level)
-              )}
-            >
-              {question.difficulty_level.charAt(0).toUpperCase() +
-                question.difficulty_level.slice(1)}
-            </Badge>
+
             {examMode === "practice" && (
               <Badge variant="secondary" className="text-xs px-2 py-1">
                 Practice Mode
