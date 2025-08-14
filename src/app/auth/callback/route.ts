@@ -26,7 +26,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createServerSupabaseClient();
+    
+    console.log("🔐 OAuth Callback - Attempting to exchange code for session");
+    console.log("🔐 Code received:", code ? `${code.substring(0, 10)}...` : "No code");
+    
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    console.log("🔐 OAuth Exchange Result:", {
+      hasUser: !!data?.user,
+      hasSession: !!data?.session,
+      error: error ? error.message : "No error"
+    });
 
     if (!error && data.user) {
       try {
@@ -97,6 +107,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${siteUrl}${next}`);
     }
   }
+
+  // Log the error case
+  console.error("🔐 OAuth Callback Failed:", {
+    hasCode: !!code,
+    siteUrl,
+    requestUrl: request.url,
+    timestamp: new Date().toISOString()
+  });
 
   // Return the user to an error page with instructions
   return NextResponse.redirect(`${siteUrl}/auth/auth-code-error`);
