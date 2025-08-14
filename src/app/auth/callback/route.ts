@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         // Check if user has a profile
         const { data: existingProfile } = await supabase
           .from("profiles")
-          .select("id")
+          .select("id, first_name, last_name, avatar_url")
           .eq("id", data.user.id)
           .single();
 
@@ -63,23 +63,29 @@ export async function GET(request: NextRequest) {
         } else {
           // Update existing profile if name fields are empty
           const userMetadata = data.user.user_metadata || {};
-          const shouldUpdateName = !existingProfile.first_name && !existingProfile.last_name;
-          
+          const shouldUpdateName =
+            !existingProfile.first_name || !existingProfile.last_name;
+
           if (shouldUpdateName) {
             const fullName = userMetadata.full_name || userMetadata.name || "";
-            const { firstName, lastName } = parseFullName(fullName);
-            
-            const { error: updateError } = await supabase
-              .from("profiles")
-              .update({
-                first_name: firstName || null,
-                last_name: lastName || null,
-                avatar_url: userMetadata.avatar_url || userMetadata.picture || existingProfile.avatar_url,
-              })
-              .eq("id", data.user.id);
+            if (fullName) {
+              const { firstName, lastName } = parseFullName(fullName);
 
-            if (updateError) {
-              console.error("Error updating profile after OAuth:", updateError);
+              const { error: updateError } = await supabase
+                .from("profiles")
+                .update({
+                  first_name: firstName || null,
+                  last_name: lastName || null,
+                  avatar_url:
+                    userMetadata.avatar_url ||
+                    userMetadata.picture ||
+                    existingProfile.avatar_url,
+                })
+                .eq("id", data.user.id);
+
+              if (updateError) {
+                console.error("Error updating profile after OAuth:", updateError);
+              }
             }
           }
         }

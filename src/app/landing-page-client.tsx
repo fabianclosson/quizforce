@@ -306,7 +306,7 @@ export function LandingPageClient() {
               </div>
 
               {/* Certification Path - Hidden on mobile for performance */}
-              <div className="hidden lg:block">
+              <div className="hidden md:block">
                 <CertificationPath />
               </div>
             </div>

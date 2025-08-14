@@ -20,6 +20,8 @@ export function CatalogPageClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedPriceType, setSelectedPriceType] = useState<"all" | "free" | "premium">("all");
+  const [selectedLevel, setSelectedLevel] = useState<"all" | "Foundational" | "Intermediate" | "Advanced">("all");
+  const [selectedProduct, setSelectedProduct] = useState<"all" | "Agentforce" | "Commerce Cloud" | "CRM Analytics" | "Data Cloud" | "Experience Cloud" | "Industry Solutions" | "MuleSoft" | "Net Zero Cloud" | "Sales Cloud" | "Salesforce Platform" | "Service Cloud" | "Slack" | "Tableau">("all");
   const [selectedEnrollmentFilter, setSelectedEnrollmentFilter] = useState<"all" | "enrolled" | "not_enrolled">("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -32,11 +34,13 @@ export function CatalogPageClient() {
       search: searchTerm || undefined,
       category: selectedCategory || undefined,
       priceType: selectedPriceType === "all" ? undefined : selectedPriceType,
+      level: selectedLevel === "all" ? undefined : selectedLevel,
+      product: selectedProduct === "all" ? undefined : selectedProduct,
       enrollmentFilter: selectedEnrollmentFilter === "all" ? undefined : selectedEnrollmentFilter,
       page: currentPage,
       limit: ITEMS_PER_PAGE,
     }),
-    [searchTerm, selectedCategory, selectedPriceType, selectedEnrollmentFilter, currentPage]
+    [searchTerm, selectedCategory, selectedPriceType, selectedLevel, selectedProduct, selectedEnrollmentFilter, currentPage]
   );
 
   // Fetch data using React Query hooks
@@ -70,6 +74,18 @@ export function CatalogPageClient() {
     setCurrentPage(1);
   };
 
+  // Handle level filter
+  const handleLevelChange = (level: "all" | "Foundational" | "Intermediate" | "Advanced") => {
+    setSelectedLevel(level);
+    setCurrentPage(1);
+  };
+
+  // Handle product filter
+  const handleProductChange = (product: "all" | "Agentforce" | "Commerce Cloud" | "CRM Analytics" | "Data Cloud" | "Experience Cloud" | "Industry Solutions" | "MuleSoft" | "Net Zero Cloud" | "Sales Cloud" | "Salesforce Platform" | "Service Cloud" | "Slack" | "Tableau") => {
+    setSelectedProduct(product);
+    setCurrentPage(1);
+  };
+
   // Handle price type filter
   const handlePriceTypeChange = (priceType: "all" | "free" | "premium") => {
     setSelectedPriceType(priceType);
@@ -92,11 +108,13 @@ export function CatalogPageClient() {
     setSearchTerm("");
     setSelectedCategory("");
     setSelectedPriceType("all");
+    setSelectedLevel("all");
+    setSelectedProduct("all");
     setSelectedEnrollmentFilter("all");
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = searchTerm || selectedCategory || selectedPriceType !== "all" || selectedEnrollmentFilter !== "all";
+  const hasActiveFilters = searchTerm || selectedCategory || selectedPriceType !== "all" || selectedLevel !== "all" || selectedProduct !== "all" || selectedEnrollmentFilter !== "all";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -143,9 +161,13 @@ export function CatalogPageClient() {
                 categories={categories || []}
                 selectedCategory={selectedCategory}
                 priceFilter={selectedPriceType}
+                levelFilter={selectedLevel}
+                productFilter={selectedProduct}
                 enrollmentFilter={selectedEnrollmentFilter}
                 onCategoryChange={handleCategoryChange}
                 onPriceFilterChange={handlePriceTypeChange}
+                onLevelFilterChange={handleLevelChange}
+                onProductFilterChange={handleProductChange}
                 onEnrollmentFilterChange={handleEnrollmentFilterChange}
               />
             </CardContent>

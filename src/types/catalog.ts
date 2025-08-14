@@ -21,6 +21,8 @@ export interface Certification {
   price_cents: number;
   exam_count: number;
   total_questions: number;
+  level: "Foundational" | "Intermediate" | "Advanced";
+  product: "Agentforce" | "Commerce Cloud" | "CRM Analytics" | "Data Cloud" | "Experience Cloud" | "Industry Solutions" | "MuleSoft" | "Net Zero Cloud" | "Sales Cloud" | "Salesforce Platform" | "Service Cloud" | "Slack" | "Tableau";
   is_active: boolean;
   is_featured: boolean;
   created_at: string;
@@ -51,6 +53,8 @@ export interface CertificationPackage {
 export interface CatalogFilters {
   category?: string;
   priceType?: "free" | "premium" | "all";
+  level?: "Foundational" | "Intermediate" | "Advanced" | "all";
+  product?: "Agentforce" | "Commerce Cloud" | "CRM Analytics" | "Data Cloud" | "Experience Cloud" | "Industry Solutions" | "MuleSoft" | "Net Zero Cloud" | "Sales Cloud" | "Salesforce Platform" | "Service Cloud" | "Slack" | "Tableau" | "all";
   search?: string;
   enrollmentFilter?: "all" | "enrolled" | "not_enrolled";
   page?: number;

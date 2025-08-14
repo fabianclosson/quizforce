@@ -434,7 +434,7 @@ export default function DashboardPage() {
                             className="w-full hover:bg-blue-600 hover:border-blue-600"
                             size="sm"
                           >
-                            <Link href="http://localhost:3000/practice-exams">
+                            <Link href="/practice-exams">
                               View Practice Exams
                               <ChevronRight className="ml-2 h-4 w-4" />
                             </Link>
